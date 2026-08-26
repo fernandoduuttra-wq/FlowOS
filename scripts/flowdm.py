@@ -12,7 +12,7 @@ Uso:
       Lista os posts recentes do Instagram com indice, data e legenda.
       Serve pra escolher o post na mao quando --ultimo nao servir.
 
-  python scripts/flowdm.py nova --palavra MAPA --link <url-do-notion> --ultimo
+  python scripts/flowdm.py nova --palavra MAPA --link <url-do-material> --ultimo
       Cria a automacao ja apontada pro post mais recente. E o uso do dia a dia.
 
       Alvo do post (escolha um):
@@ -307,7 +307,7 @@ def main():
 
     sn = sub.add_parser("nova", help="cria uma automacao")
     sn.add_argument("--palavra", required=True, help="palavra-chave (varias: separe por virgula)")
-    sn.add_argument("--link", required=True, help="url do lead magnet (pagina do Notion)")
+    sn.add_argument("--link", required=True, help="URL do material entregue")
     alvo = sn.add_mutually_exclusive_group(required=True)
     alvo.add_argument("--ultimo", action="store_true", help="prende no post mais recente")
     alvo.add_argument("--post-url", help="prende no post desta url")

@@ -34,7 +34,7 @@ Assim, seu contexto e os arquivos do negócio ficam no seu próprio repositório
 Abra Claude Code, Codex ou o agente escolhido e envie:
 
 ```text
-Clone o repositório <COLE_AQUI_O_LINK_DO_SEU_REPOSITORIO>, abra a pasta clonada, leia o AGENTS.md e use a skill instalar para configurar meu FlowOS. Faça a entrevista uma pergunta por vez e conclua a instalação antes de iniciar qualquer outra tarefa.
+Clone o repositório <COLE_AQUI_O_LINK_DO_SEU_REPOSITORIO>, abra a pasta clonada, leia o AGENTS.md e siga a skill em .claude/skills/instalar/SKILL.md para configurar meu FlowOS. Faça a entrevista uma pergunta por vez e conclua a instalação antes de iniciar qualquer outra tarefa.
 ```
 
 O agente vai:
@@ -60,7 +60,8 @@ O FlowOS passa a usar:
 
 Quando uma rotina se repetir, peça para o FlowOS mapeá-la e transformá-la em skill. O sistema cresce com o que você realmente faz.
 
+Para experimentar uma skill sem configurar nenhuma integração, envie uma referência de conteúdo e peça para usar a `Content Skill`. Ela faz de uma a três perguntas e constrói a adaptação com você dentro do chat.
+
 ## Segurança
 
 Mantenha o repositório privado. Nunca salve senhas, tokens ou chaves de API em arquivos versionados. O `.gitignore` já protege os formatos mais comuns, mas a decisão final continua sendo sua.
-
