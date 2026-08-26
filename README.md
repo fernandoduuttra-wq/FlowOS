@@ -11,12 +11,10 @@ O FlowOS funciona no VS Code com Claude Code, Codex e outros agentes que leem `A
 Você precisa de:
 
 1. VS Code;
-2. Git;
-3. uma conta no GitHub conectada ao computador;
-4. GitHub CLI autenticado;
-5. Claude Code, Codex ou outro agente compatível dentro do VS Code.
+2. uma conta no GitHub;
+3. Claude Code, Codex ou outro agente compatível dentro do VS Code.
 
-O curso ensina esse setup desde o zero.
+O agente verifica e instala Git e GitHub CLI quando forem necessários. Se o GitHub pedir autenticação no navegador, ele orienta você durante essa etapa.
 
 ## Ligando o sistema
 
@@ -25,6 +23,8 @@ Abra o agente em uma pasta vazia e cole:
 ```text
 Instale meu FlowOS usando este repositório:
 https://github.com/fernandoduuttra-wq/FlowOS
+
+Antes de clonar, verifique se Git e GitHub CLI estão instalados. Se algum estiver ausente, instale a versão estável adequada ao meu sistema operacional. Depois confirme se o GitHub CLI está autenticado na minha conta. Se a autenticação exigir o navegador, me conduza por essa etapa e aguarde eu concluir.
 
 Primeiro clone o repositório. Não faça nenhuma alteração nem push no repositório de origem.
 
