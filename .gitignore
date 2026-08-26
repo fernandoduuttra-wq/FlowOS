@@ -1,0 +1,49 @@
+# Sistema e editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Atalhos locais de skills
+.agents/skills
+
+# Sessões e histórico local dos agentes
+.claude/projects/
+.claude/sessions/
+.claude/shell-snapshots/
+.claude/telemetry/
+.claude/file-history/
+.claude/backups/
+.claude/settings.local.json
+
+# Segredos e configurações locais
+.env
+.env.*
+!.env.example
+*.token.txt
+*.pem
+*.key
+scripts/.*-config.json
+scripts/.*-conta.json
+scripts/.*-sites.json
+scripts/.*-projects.json
+
+# Dependências e caches
+node_modules/
+__pycache__/
+*.pyc
+*.log
+*.tmp
+
+# Mídia pesada e arquivos temporários
+*.mp4
+*.mov
+*.mkv
+*.webm
+.editor-backup/
+.editor-lixo/
+
+# Dados são entrada local. Somente o guia da pasta é versionado.
+dados/*
+!dados/README.md
+

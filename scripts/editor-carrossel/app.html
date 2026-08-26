@@ -1,0 +1,1270 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Editor de carrossel — FlowOS</title>
+<style>
+:root{
+  --bg:#141414; --painel:#1c1c1c; --linha:#2c2c2c; --txt:#e8e6e3; --fraco:#8f8a85;
+  --azul:#2ea8ff; --ok:#4ec9a0; --alerta:#e0a33a; --erro:#e2564d;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--txt);font:13px/1.45 "Segoe UI",system-ui,sans-serif;
+  height:100vh;display:flex;flex-direction:column;overflow:hidden}
+button{font:inherit;color:inherit;background:#282828;border:1px solid var(--linha);
+  border-radius:6px;padding:5px 11px;cursor:pointer}
+button:hover:not(:disabled){background:#333;border-color:#3d3d3d}
+button:disabled{opacity:.4;cursor:default}
+button.primario{background:var(--azul);border-color:var(--azul);color:#06263d;font-weight:600}
+button.primario:hover:not(:disabled){background:#4fb8ff}
+button.perigo{width:100%;border-color:rgba(226,86,77,.5);color:#f0a29b}
+button.perigo:hover:not(:disabled){background:rgba(226,86,77,.16);border-color:var(--erro)}
+select,input,textarea{font:inherit;color:inherit;background:#232323;border:1px solid var(--linha);
+  border-radius:5px;padding:4px 7px;width:100%}
+input:focus,select:focus,textarea:focus{outline:1px solid var(--azul);border-color:var(--azul)}
+label{color:var(--fraco);font-size:11px}
+
+/* ---------- barra de cima ---------- */
+#topo{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--painel);
+  border-bottom:1px solid var(--linha);flex:none}
+#topo .cresce{flex:1}
+#pastaSel{max-width:420px}
+#estado{font-size:11px;padding:3px 9px;border-radius:99px;background:#232323;color:var(--fraco);white-space:nowrap}
+#estado.sujo{background:rgba(224,163,58,.16);color:var(--alerta)}
+#estado.salvo{background:rgba(78,201,160,.14);color:var(--ok)}
+.marcador{display:flex;align-items:center;gap:5px;color:var(--fraco);font-size:11px;white-space:nowrap}
+.marcador input{width:auto}
+
+/* ---------- corpo ---------- */
+#corpo{flex:1;display:flex;min-height:0}
+#tira{width:158px;flex:none;background:var(--painel);border-right:1px solid var(--linha);
+  overflow-y:auto;padding:10px}
+#palcoWrap{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;
+  padding:16px;overflow:hidden;position:relative}
+#inspetor{width:296px;flex:none;background:var(--painel);border-left:1px solid var(--linha);
+  overflow-y:auto;padding:12px}
+
+/* ---------- tira de slides ---------- */
+.mini{position:relative;margin-bottom:9px;border:2px solid transparent;border-radius:7px;
+  overflow:hidden;background:#000;cursor:pointer}
+.mini.ativo{border-color:var(--azul)}
+.mini.arrastando{opacity:.35}
+.mini.alvo{border-color:var(--ok)}
+.mini .moldura{width:134px;height:167px;overflow:hidden;position:relative;pointer-events:none}
+.mini iframe{width:1080px;height:1350px;border:0;transform:scale(.124);transform-origin:0 0;
+  position:absolute;top:0;left:0}
+.mini img{width:134px;height:167px;object-fit:cover;display:block}
+.mini .capa{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:space-between;
+  padding:5px 6px;background:linear-gradient(transparent 55%,rgba(0,0,0,.72));opacity:0;transition:.12s}
+.mini:hover .capa,.mini.ativo .capa{opacity:1}
+.mini .num{position:absolute;top:4px;left:5px;background:rgba(0,0,0,.72);color:#fff;
+  font-size:10px;padding:1px 6px;border-radius:99px}
+.mini .capa button{padding:2px 6px;font-size:10px;line-height:1.3}
+.dicaTira{color:var(--fraco);font-size:10.5px;margin:2px 0 9px;line-height:1.4}
+
+/* ---------- palco ---------- */
+#escala{position:relative;transform-origin:0 0;box-shadow:0 12px 46px rgba(0,0,0,.6)}
+#palco{width:1080px;height:1350px;border:0;display:block;background:#fff}
+#palcoPng{max-width:100%;max-height:100%;display:none;box-shadow:0 12px 46px rgba(0,0,0,.6)}
+#vazio{color:var(--fraco);text-align:center;max-width:440px;line-height:1.6}
+
+/* ---------- inspetor ---------- */
+.grupo{border-top:1px solid var(--linha);padding:11px 0}
+.grupo:first-child{border-top:0;padding-top:2px}
+.grupo h3{font-size:10.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--fraco);
+  margin-bottom:8px;font-weight:600}
+.linha2{display:grid;grid-template-columns:78px 1fr;gap:7px;align-items:center;margin-bottom:6px}
+.linha2 label{text-align:right}
+.par{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+#alvoEl{font-family:ui-monospace,Consolas,monospace;font-size:11px;color:var(--azul);
+  background:#202020;border:1px solid var(--linha);border-radius:5px;padding:6px 8px;
+  margin-bottom:10px;word-break:break-all;line-height:1.4}
+#alvoEl .tag{color:var(--ok)}
+#alvoEl .pai{color:var(--fraco);cursor:pointer;text-decoration:underline dotted}
+.swatches{display:flex;flex-wrap:wrap;gap:5px}
+.sw{width:26px;height:26px;border-radius:5px;border:1px solid rgba(255,255,255,.22);
+  cursor:pointer;padding:0;position:relative}
+.sw:hover{transform:scale(1.12)}
+.sw.nada{background:repeating-linear-gradient(45deg,#333 0 4px,#222 4px 8px)}
+.destino{display:flex;gap:5px;margin-bottom:7px}
+.destino button{flex:1;padding:3px 0;font-size:11px}
+.destino button.on{background:var(--azul);border-color:var(--azul);color:#06263d;font-weight:600}
+#nunca{list-style:none;font-size:11px;color:var(--fraco);line-height:1.5}
+#nunca li{padding-left:11px;position:relative;margin-bottom:4px}
+#nunca li::before{content:"×";position:absolute;left:0;color:var(--erro)}
+#extraCss{font-family:ui-monospace,Consolas,monospace;font-size:11px;min-height:56px;resize:vertical}
+.aviso{color:var(--fraco);font-size:11px;line-height:1.45;margin-top:6px}
+
+/* ---------- alças de mouse (mover / girar / escalar) ----------
+   O quadro fica no documento DE FORA, por cima do iframe, e é
+   pointer-events:none — só as alças capturam mouse. Sem isso, o quadro
+   taparia o elemento e mataria a edição de texto por clique. */
+#alcas{position:fixed;z-index:45;pointer-events:none;display:none}
+#alcas.on{display:block}
+/* O corpo cobre o elemento inteiro pra dar arraste de qualquer ponto. Clique
+   sem movimento não vira arraste: cai pro elemento embaixo e vira edição de
+   texto. Com Alt, o corpo some do caminho pra dar pra selecionar texto. */
+#alcas .corpo{position:absolute;inset:0;pointer-events:auto;cursor:move}
+#alcas.passar .corpo{pointer-events:none}
+#alcas .borda{position:absolute;background:var(--azul);pointer-events:auto;opacity:.001}
+#alcas .borda:hover{opacity:.35}
+#alcas .borda.cima,#alcas .borda.baixo{left:0;right:0;height:7px;cursor:move}
+#alcas .borda.cima{top:-3px} #alcas .borda.baixo{bottom:-3px}
+#alcas .borda.esq,#alcas .borda.dir{top:0;bottom:0;width:7px;cursor:move}
+#alcas .borda.esq{left:-3px} #alcas .borda.dir{right:-3px}
+#alcas .canto{position:absolute;width:11px;height:11px;background:var(--bg);
+  border:2px solid var(--azul);border-radius:2px;pointer-events:auto}
+#alcas .canto:hover{background:var(--azul)}
+#alcas .canto.nw{left:-6px;top:-6px;cursor:nwse-resize}
+#alcas .canto.ne{right:-6px;top:-6px;cursor:nesw-resize}
+#alcas .canto.se{right:-6px;bottom:-6px;cursor:nwse-resize}
+#alcas .canto.sw{left:-6px;bottom:-6px;cursor:nesw-resize}
+#alcas .girar{position:absolute;left:50%;top:-30px;width:15px;height:15px;margin-left:-7.5px;
+  background:var(--bg);border:2px solid var(--azul);border-radius:50%;pointer-events:auto;
+  cursor:grab}
+#alcas .girar:hover{background:var(--azul)}
+#alcas .haste{position:absolute;left:50%;top:-16px;width:1px;height:16px;background:var(--azul);opacity:.6}
+/* fora do #alcas de propósito: dentro, giraria junto e ficaria de ponta-cabeça */
+#cracha{position:fixed;z-index:46;transform:translateX(-50%);pointer-events:none;
+  background:var(--azul);color:#06263d;font-size:11px;font-weight:600;padding:2px 8px;
+  border-radius:4px;white-space:nowrap;display:none}
+#cracha.on{display:block}
+body.arrastando-alca{user-select:none;cursor:grabbing}
+
+/* ---------- recados ---------- */
+#recado{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:50;
+  background:#242424;border:1px solid var(--linha);border-radius:8px;padding:10px 15px;
+  max-width:66vw;box-shadow:0 10px 34px rgba(0,0,0,.55);display:none;white-space:pre-wrap;
+  font-size:12px;line-height:1.5;max-height:38vh;overflow:auto}
+#recado.erro{border-color:var(--erro)}
+#recado.bom{border-color:var(--ok)}
+
+/* ---------- abrir pasta pelo caminho ---------- */
+#modalColar{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.62);
+  display:flex;align-items:center;justify-content:center}
+#modalColar[hidden]{display:none}
+.caixaModal{background:var(--painel);border:1px solid var(--linha);border-radius:11px;
+  padding:20px 22px;width:640px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.caixaModal h2{font-size:15px;margin-bottom:8px}
+.caixaModal p{color:var(--fraco);font-size:12px;line-height:1.55;margin-bottom:12px}
+.caixaModal code{background:#232323;padding:1px 5px;border-radius:4px;font-size:11px}
+#campoCaminho{font-family:ui-monospace,Consolas,monospace;font-size:12px;padding:8px 10px}
+#erroColar{color:var(--erro);font-size:12px;line-height:1.45;margin-top:9px;display:none}
+.botoesModal{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+</style>
+</head>
+<body>
+
+<div id="topo">
+  <select id="pastaSel" title="Peça a editar"></select>
+  <button id="btColar" title="Abrir uma pasta apontando o caminho na mão">Abrir pasta…</button>
+  <span id="estado">—</span>
+  <span class="cresce"></span>
+  <label class="marcador"><input type="checkbox" id="autosave" checked> salvar sozinho</label>
+  <button id="btDesfazer" title="Nada pra desfazer" disabled>↶ Desfazer</button>
+  <button id="btSalvar" title="Ctrl+S">Salvar</button>
+  <button id="btLimpar" title="Desfaz só os ajustes visuais feitos aqui; o texto fica">Limpar ajustes</button>
+  <button id="btRestaurar" title="Volta o slide ao estado de antes do editor">Restaurar original</button>
+  <button id="btRender" class="primario">Renderizar</button>
+  <button id="btVerPng" disabled>Ver PNG</button>
+</div>
+
+<div id="corpo">
+  <div id="tira">
+    <p class="dicaTira">Arraste pra reordenar. Passe o mouse pra duplicar ou apagar.</p>
+    <div id="minis"></div>
+  </div>
+
+  <div id="palcoWrap">
+    <div id="escala"><iframe id="palco"></iframe></div>
+    <img id="palcoPng" alt="">
+    <div id="vazio" hidden>
+      Escolhe a peça na lista de cima.<br>
+      <small>Se a lista está vazia, é porque nenhuma pasta do repo tem <code>slide-NN.html</code>.</small>
+    </div>
+  </div>
+
+  <div id="inspetor">
+    <div id="alvoEl">clique num elemento do slide</div>
+    <div id="campos"></div>
+  </div>
+</div>
+
+<!-- Fica solto no body, e não dentro do #palcoWrap: aquele tem overflow:hidden,
+     e alça de canto ou o botão de girar podem cair pra fora da área do palco. -->
+<div id="alcas">
+  <!-- o corpo vem PRIMEIRO pra que bordas e cantos, que vêm depois, ganhem
+       o evento nas beiradas onde os dois se sobrepõem -->
+  <div class="corpo" data-gesto="mover" title="Arraste de qualquer ponto pra mover · clique pra editar o texto · segure Alt pra selecionar texto com o mouse"></div>
+  <div class="borda cima" data-gesto="mover" title="Arraste pra mover (Shift trava no eixo)"></div>
+  <div class="borda baixo" data-gesto="mover" title="Arraste pra mover (Shift trava no eixo)"></div>
+  <div class="borda esq" data-gesto="mover" title="Arraste pra mover (Shift trava no eixo)"></div>
+  <div class="borda dir" data-gesto="mover" title="Arraste pra mover (Shift trava no eixo)"></div>
+  <div class="canto nw" data-gesto="escalar" title="Arraste pra aumentar ou diminuir"></div>
+  <div class="canto ne" data-gesto="escalar" title="Arraste pra aumentar ou diminuir"></div>
+  <div class="canto se" data-gesto="escalar" title="Arraste pra aumentar ou diminuir"></div>
+  <div class="canto sw" data-gesto="escalar" title="Arraste pra aumentar ou diminuir"></div>
+  <div class="haste"></div>
+  <div class="girar" data-gesto="girar" title="Arraste pra girar (Shift trava de 15 em 15)"></div>
+</div>
+<div id="cracha"></div>
+
+<div id="recado"></div>
+
+<div id="modalColar" hidden>
+  <div class="caixaModal">
+    <h2>Abrir pasta pelo caminho</h2>
+    <p>Cole o caminho da pasta do carrossel — ou de um <code>slide-NN.html</code> dentro dela, que eu
+    subo pra pasta sozinho. Serve o caminho do Explorer, o "Copiar caminho" do VS Code (com aspas e
+    tudo) ou o relativo tipo <code>marketing/conteudo/&lt;pasta&gt;</code>.</p>
+    <input type="text" id="campoCaminho" placeholder="D:\Users\...\marketing\conteudo\carrossel-tema-2026-08-17" autofocus>
+    <div id="erroColar"></div>
+    <div class="botoesModal">
+      <button id="btCancelarColar">Cancelar</button>
+      <button id="btAbrirColar" class="primario">Abrir</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* ======================= estado ======================= */
+const S = {
+  pasta:null, slides:[], atual:null, imagens:[], tokens:null, comBackup:[],
+  sel:null, sujo:false, salvando:false, carregando:false,
+  destinoCor:"color", modoPng:false, pngs:[], saidaPng:"instagram", k:1,
+  emGesto:false, suspenderHistoria:false,
+};
+const $ = (s)=>document.querySelector(s);
+
+/* ======================= recados ======================= */
+let timerRecado;
+function recado(txt, tipo){
+  const el = $("#recado");
+  el.textContent = txt;
+  el.className = tipo || "";
+  el.style.display = "block";
+  clearTimeout(timerRecado);
+  timerRecado = setTimeout(()=>{ el.style.display="none"; }, tipo==="erro" ? 12000 : 4200);
+}
+// Clicar fecha na hora: o recado nasce em cima do palco, e depois de renderizar
+// é justamente o slide recém-gerado que ele estaria tapando.
+$("#recado").onclick = ()=>{ clearTimeout(timerRecado); $("#recado").style.display="none"; };
+function marcarEstado(){
+  const el = $("#estado");
+  if (S.carregando){ el.textContent="carregando…"; el.className=""; }
+  else if (S.salvando){ el.textContent="salvando…"; el.className=""; }
+  else if (S.sujo){ el.textContent="não salvo"; el.className="sujo"; }
+  else if (S.atual){ el.textContent="salvo"; el.className="salvo"; }
+  else { el.textContent="—"; el.className=""; }
+}
+
+/* ======================= api ======================= */
+async function api(rota, corpo){
+  const opc = corpo ? {method:"POST", headers:{"Content-Type":"application/json"},
+                       body:JSON.stringify(Object.assign({pasta:S.pasta}, corpo))} : {};
+  const r = await fetch(rota, opc);
+  const d = await r.json().catch(()=>({ok:false, erro:"resposta ilegível do servidor"}));
+  if (!d.ok) throw new Error(d.erro || ("falha em "+rota));
+  return d;
+}
+
+/* ======================= carga inicial ======================= */
+async function iniciar(){
+  let pastas = [];
+  try { pastas = (await api("/api/pastas")).pastas; }
+  catch(e){ return recado("Não consegui listar as peças: "+e.message, "erro"); }
+
+  const sel = $("#pastaSel");
+  sel.innerHTML = pastas.length
+    ? pastas.map(p=>`<option value="${p.pasta}">${p.pasta}  (${p.slides})</option>`).join("")
+    : `<option value="">— nenhuma peça com slide-NN.html —</option>`;
+
+  sel.onchange = ()=> abrirPasta(sel.value).catch(()=>{});
+
+  // ?pasta= pode apontar pra algo que a varredura nao listou (fora de
+  // marketing/conteudo, criado agora). Tentamos abrir de qualquer jeito e
+  // deixamos o servidor decidir se vale.
+  const pedida = new URLSearchParams(location.search).get("pasta");
+  const primeira = pedida || (pastas.length ? sel.value : null);
+  if (!primeira){ $("#escala").hidden = true; $("#vazio").hidden = false; return; }
+  try { await abrirPasta(primeira); }
+  catch(e){
+    if (pastas.length && pedida) { try { await abrirPasta(sel.value); } catch(_){} }
+    else { $("#escala").hidden = true; $("#vazio").hidden = false; }
+  }
+}
+
+function garantirNoSeletor(pasta, quantos){
+  const sel = $("#pastaSel");
+  let opc = [...sel.options].find(o=>o.value===pasta);
+  if (!opc){
+    opc = document.createElement("option");
+    opc.value = pasta;
+    opc.textContent = pasta + "  (" + quantos + ")";
+    sel.insertBefore(opc, sel.firstChild);
+  }
+  sel.value = pasta;
+}
+
+/* ---- abrir pasta colando o caminho ---- */
+function abrirModalColar(){
+  $("#modalColar").hidden = false;
+  $("#erroColar").style.display = "none";
+  const c = $("#campoCaminho");
+  c.value = ""; c.focus();
+}
+function fecharModalColar(){ $("#modalColar").hidden = true; }
+
+async function confirmarColar(){
+  const caminho = $("#campoCaminho").value.trim();
+  if (!caminho) return;
+  const erro = $("#erroColar");
+  erro.style.display = "none";
+  const bt = $("#btAbrirColar");
+  bt.disabled = true; bt.textContent = "Abrindo…";
+  try {
+    await abrirPasta(caminho);
+    fecharModalColar();
+    recado("Abri " + S.pasta, "bom");
+  } catch(e){
+    erro.textContent = e.message;
+    erro.style.display = "block";
+  } finally { bt.disabled = false; bt.textContent = "Abrir"; }
+}
+
+$("#btColar").onclick = abrirModalColar;
+$("#btCancelarColar").onclick = fecharModalColar;
+$("#btAbrirColar").onclick = confirmarColar;
+$("#campoCaminho").onkeydown = (e)=>{
+  if (e.key === "Enter"){ e.preventDefault(); confirmarColar(); }
+  if (e.key === "Escape"){ e.preventDefault(); fecharModalColar(); }
+};
+$("#modalColar").onclick = (e)=>{ if (e.target.id === "modalColar") fecharModalColar(); };
+
+async function abrirPasta(pasta){
+  if (S.sujo) await salvar();
+  S.sel = null; S.modoPng = false;
+  let d;
+  try {
+    d = await api("/api/estado?pasta="+encodeURIComponent(pasta));
+  } catch(e){ recado("Não consegui abrir a peça: "+e.message, "erro"); throw e; }
+  // O servidor devolve o caminho já normalizado e relativo à raiz. Usamos o
+  // dele, não o que foi digitado: assim um caminho absoluto colado à mão vira
+  // a mesma chave que o seletor usa, e a lista não ganha entrada duplicada.
+  S.pasta = d.pasta;
+  S.slides = d.slides; S.imagens = d.imagens; S.tokens = d.tokens; S.comBackup = d.comBackup;
+  garantirNoSeletor(d.pasta, d.slides.length);
+  if (S.tokens.erro) recado("Atenção: "+S.tokens.erro+" — as amostras de cor e fonte vão vir vazias.", "erro");
+  $("#btVerPng").disabled = true;
+  desenharTira();
+  await irPara(S.slides[0]);
+  montarInspetor();
+}
+
+/* ======================= tira de slides ======================= */
+function desenharTira(){
+  const alvo = $("#minis");
+  alvo.innerHTML = "";
+  S.slides.forEach((nome, i)=>{
+    const div = document.createElement("div");
+    div.className = "mini" + (nome===S.atual ? " ativo" : "");
+    div.draggable = true;
+    div.dataset.slide = nome;
+    const fonte = S.modoPng
+      ? `<img src="/f/${S.pasta}/${S.saidaPng}/${nome.replace(".html",".png")}?t=${Date.now()}" alt="">`
+      : `<iframe src="/f/${S.pasta}/${nome}" scrolling="no" tabindex="-1"></iframe>`;
+    div.innerHTML = `
+      <div class="moldura">${fonte}</div>
+      <span class="num">${i+1}</span>
+      <div class="capa">
+        <button data-acao="duplicar" title="Duplicar">＋</button>
+        <button data-acao="apagar" title="Apagar (vai pro .editor-lixo)">🗑</button>
+      </div>`;
+    div.onclick = (e)=>{
+      const acao = e.target.dataset && e.target.dataset.acao;
+      if (acao) { e.stopPropagation(); return acaoSlide(acao, nome); }
+      irPara(nome);
+    };
+    ligarArraste(div);
+    alvo.appendChild(div);
+  });
+}
+
+let arrastado = null;
+function ligarArraste(div){
+  div.ondragstart = (e)=>{
+    arrastado = div.dataset.slide;
+    // Sem payload no DataTransfer o Chrome pode recusar iniciar o arraste.
+    try { e.dataTransfer.setData("text/plain", arrastado); e.dataTransfer.effectAllowed = "move"; } catch(_){}
+    div.classList.add("arrastando");
+  };
+  div.ondragend = ()=>{
+    arrastado = null;
+    document.querySelectorAll(".mini").forEach(m=>m.classList.remove("arrastando","alvo"));
+  };
+}
+
+// dragover/drop ficam DELEGADOS na tira, não em cada miniatura: os botões da
+// capa (duplicar/apagar) viram o e.target quando o ponteiro passa por cima
+// deles, e aí um handler preso na miniatura nunca chamaria preventDefault --
+// sem preventDefault no dragover, o drop simplesmente não dispara.
+(function ligarTira(){
+  const tira = $("#minis");
+  const achar = (e)=> e.target && e.target.closest ? e.target.closest(".mini") : null;
+
+  tira.addEventListener("dragover", (e)=>{
+    const alvo = achar(e);
+    if (!arrastado || !alvo || alvo.dataset.slide===arrastado) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    document.querySelectorAll(".mini.alvo").forEach(m=>m.classList.remove("alvo"));
+    alvo.classList.add("alvo");
+  });
+
+  tira.addEventListener("drop", async (e)=>{
+    const alvo = achar(e);
+    if (!arrastado || !alvo || alvo.dataset.slide===arrastado) return;
+    e.preventDefault();
+    const solto = arrastado, destino = alvo.dataset.slide;
+    arrastado = null;
+    document.querySelectorAll(".mini").forEach(m=>m.classList.remove("arrastando","alvo"));
+    // Arrastando PRA BAIXO o item entra depois do alvo; pra cima, antes dele.
+    // Sem essa distinção, tirar o item da lista antes de reinserir empurra todo
+    // mundo um passo e o slide pousa uma posição acima de onde foi solto.
+    const de = S.slides.indexOf(solto), para = S.slides.indexOf(destino);
+    const ordem = S.slides.slice();
+    ordem.splice(de, 1);
+    const ondeCai = ordem.indexOf(destino) + (de < para ? 1 : 0);
+    ordem.splice(ondeCai, 0, solto);
+    await mexerEmSlides("/api/reordenar", {ordem}, "ordem trocada");
+  });
+})();
+
+async function acaoSlide(acao, nome){
+  if (acao==="apagar" && !confirm(`Apagar o ${nome}? Ele vai pro .editor-lixo/ e os outros são renumerados.`)) return;
+  await mexerEmSlides("/api/"+acao, {slide:nome}, acao==="apagar" ? "slide apagado" : "slide duplicado");
+}
+
+async function mexerEmSlides(rota, corpo, msg){
+  if (S.sujo) await salvar();
+  try {
+    const d = await api(rota, corpo);
+    S.slides = d.slides;
+    S.modoPng = false; $("#btVerPng").disabled = true;
+    const proximo = (d.atual && S.slides.includes(d.atual)) ? d.atual
+                  : (S.slides.includes(S.atual) ? S.atual : S.slides[0]);
+    desenharTira();
+    await irPara(proximo);
+    recado(msg + " — os arquivos foram renumerados na pasta.", "bom");
+  } catch(e){ recado("Falhou: "+e.message, "erro"); }
+}
+
+/* ======================= palco ======================= */
+async function irPara(nome){
+  if (!nome) return;
+  if (S.sujo && nome!==S.atual) await salvar();
+  // O histórico guarda o innerHTML do <body> DESTE slide. Carregar outro sem
+  // zerar deixaria o Ctrl+Z despejando o conteúdo do slide anterior aqui.
+  if (nome !== S.atual){ historia.length = 0; ultimoTexto = 0; }
+  S.atual = nome; S.sel = null;
+  document.querySelectorAll(".mini").forEach(m=>m.classList.toggle("ativo", m.dataset.slide===nome));
+  if (S.modoPng){
+    $("#palcoPng").src = `/f/${S.pasta}/${S.saidaPng}/${nome.replace(".html",".png")}?t=${Date.now()}`;
+  } else {
+    // O onload do iframe só dispara depois das fontes do Google, o que leva
+    // alguns segundos na primeira carga — daí o "carregando…" no chip. O timer
+    // de 15s é rede de segurança: se a CDN travar, equipamos o que já veio em
+    // vez de deixar o painel pendurado pra sempre.
+    S.carregando = true; marcarEstado();
+    const f = $("#palco");
+    await new Promise(res=>{
+      let pronto = false;
+      const soltar = ()=>{ if (pronto) return; pronto = true; try { equipar(f.contentDocument); } catch(e){} res(); };
+      f.onload = soltar;
+      setTimeout(soltar, 15000);
+      f.src = `/f/${S.pasta}/${nome}?t=${Date.now()}`;
+    });
+    S.carregando = false;
+  }
+  S.sujo = false; marcarEstado(); mostrarAlvo(); ajustarEscala(); posicionarAlcas();
+  atualizarBotaoDesfazer();
+}
+
+function ajustarEscala(){
+  const caixa = $("#palcoWrap"), escala = $("#escala");
+  const k = Math.min((caixa.clientWidth-32)/1080, (caixa.clientHeight-32)/1350);
+  S.k = k;   // as alças precisam dele pra converter pixel de tela em pixel de slide
+  escala.style.transform = `scale(${k})`;
+  escala.style.width = (1080*k)+"px";
+  escala.style.height = (1350*k)+"px";
+  posicionarAlcas();
+}
+new ResizeObserver(ajustarEscala).observe($("#palcoWrap"));
+
+function alternarPng(ligado){
+  S.modoPng = ligado;
+  $("#escala").style.display = ligado ? "none" : "block";
+  $("#palcoPng").style.display = ligado ? "block" : "none";
+  $("#btVerPng").textContent = ligado ? "Voltar a editar" : "Ver PNG";
+  S.sel = null;
+  desenharTira();
+  irPara(S.atual);
+  montarInspetor();   // no modo PNG os knobs não valem: quem manda é o HTML
+}
+
+/* ======================= injeção no slide ======================= */
+const INLINE = new Set(["SPAN","EM","STRONG","B","I","A","SMALL","BR","SUP","SUB","U","MARK","CODE"]);
+
+function ehTexto(el){
+  if (!el.childNodes.length) return false;
+  for (const n of el.children) if (!INLINE.has(n.tagName)) return false;
+  return el.textContent.trim().length > 0;
+}
+
+function equipar(doc){
+  if (!doc) return;
+  const st = doc.createElement("style");
+  st.id = "__ed_style";
+  st.textContent = `
+    [data-ed-sel]{outline:2px solid #2ea8ff !important;outline-offset:2px}
+    [data-ed-hov]:not([data-ed-sel]){outline:1px dashed rgba(46,168,255,.55) !important;outline-offset:2px}
+    [contenteditable]{cursor:text}`;
+  doc.head.appendChild(st);
+
+  doc.addEventListener("mouseover", (e)=>{
+    doc.querySelectorAll("[data-ed-hov]").forEach(n=>n.removeAttribute("data-ed-hov"));
+    const el = e.target;
+    if (el && el.nodeType===1 && !["HTML","BODY"].includes(el.tagName)) el.setAttribute("data-ed-hov","");
+  });
+  doc.addEventListener("mouseleave", ()=> doc.querySelectorAll("[data-ed-hov]").forEach(n=>n.removeAttribute("data-ed-hov")));
+
+  doc.addEventListener("click", (e)=>{
+    const el = e.target;
+    if (!el || el.nodeType!==1) return;
+    if (el.tagName==="A") e.preventDefault();
+    if (el===S.sel && el.isContentEditable) return;   // deixa o caret trabalhar
+    selecionar(el, doc);
+  }, true);
+
+  // beforeinput, não input: o marco tem que ser tirado ANTES da tecla entrar,
+  // senão o instantâneo já vem com a letra digitada e o Ctrl+Z não volta nada.
+  doc.addEventListener("beforeinput", ()=> marco("texto"));
+  doc.addEventListener("input", ()=> sujar());
+
+  doc.addEventListener("paste", (e)=>{
+    if (!e.target.isContentEditable) return;
+    e.preventDefault();
+    const t = (e.clipboardData || doc.defaultView.clipboardData).getData("text/plain");
+    doc.execCommand("insertText", false, t.replace(/\s*\n\s*/g, " "));
+  });
+
+  // O Alt precisa valer aqui dentro também: keydown do iframe não sobe pro
+  // documento de fora, então sem isto a válvula de escape só funcionaria com
+  // o foco no painel — justamente onde ela não serve pra nada.
+  doc.addEventListener("keydown", (e)=>{ if (e.key === "Alt") $("#alcas").classList.add("passar"); });
+  doc.addEventListener("keyup",   (e)=>{ if (e.key === "Alt") $("#alcas").classList.remove("passar"); });
+
+  doc.addEventListener("keydown", (e)=>{
+    const ed = e.target.isContentEditable;
+    if (e.key==="Enter" && ed && !e.shiftKey){
+      e.preventDefault();
+      if (!doc.execCommand("insertLineBreak")) doc.execCommand("insertHTML", false, "<br>");
+      sujar();
+    }
+    if (e.key==="Escape"){ limparSelecao(doc); }
+
+    // Ctrl+Z é nosso, não do navegador: com contenteditable no ar o undo nativo
+    // desfaria só a digitação e brigaria com a nossa pilha (que também cobre
+    // estilo, gesto e elemento apagado). preventDefault desliga o dele.
+    if ((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==="z"){ e.preventDefault(); desfazer(); return; }
+
+    // Delete/Backspace apagam o ELEMENTO só quando não está digitando texto.
+    // Num h1 editável a tecla tem que continuar apagando letra — daí o Ctrl,
+    // que é a forma de mandar apagar o elemento mesmo com o caret dentro dele.
+    if ((e.key==="Delete" || e.key==="Backspace") && S.sel){
+      const digitando = e.target.isContentEditable;
+      if (!digitando || e.ctrlKey || e.metaKey){ e.preventDefault(); apagarElemento(); return; }
+    }
+
+    if (e.altKey && e.key.startsWith("Arrow") && S.sel){
+      e.preventDefault();
+      const passo = e.shiftKey ? 10 : 1;
+      const [x,y] = lerTranslate(S.sel);
+      const dx = e.key==="ArrowLeft" ? -passo : e.key==="ArrowRight" ? passo : 0;
+      const dy = e.key==="ArrowUp"   ? -passo : e.key==="ArrowDown"  ? passo : 0;
+      aplicar(S.sel, "translate", `${x+dx}px ${y+dy}px`);
+      montarInspetor();
+    }
+    if ((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==="s"){ e.preventDefault(); salvar(); }
+  });
+}
+
+function lerTranslate(el){
+  const v = (el.style.translate || "0px 0px").trim().split(/\s+/);
+  return [parseFloat(v[0])||0, parseFloat(v[1])||0];
+}
+
+/* ======================= alças de mouse ======================= */
+// Transform (translate/rotate/scale) NÃO tem efeito em elemento inline: um <em>
+// dentro do h1 ficaria imóvel por mais que você arraste. Promovemos pra
+// inline-block na primeira vez que o elemento é mexido — é a menor mudança que
+// faz o gesto funcionar, e entra no data-ed pra "Limpar ajustes" desfazer.
+function garantirTransformavel(el){
+  const disp = el.ownerDocument.defaultView.getComputedStyle(el).display;
+  if (disp === "inline") aplicar(el, "display", "inline-block");
+}
+
+// Mede a caixa de LAYOUT do elemento, sem os transforms dele.
+// Necessário porque getBoundingClientRect() devolve a caixa alinhada aos eixos:
+// num título girado 72° ela infla de 904x193 pra 565x952 — quase o slide todo —
+// e as alças de canto vão parar longe do texto, às vezes fora da tela.
+function medirSemTransform(el){
+  const s = el.style;
+  const tinhaStyle = el.hasAttribute("style");
+  const guardado = [s.translate, s.rotate, s.scale];
+  s.translate = "none"; s.rotate = "none"; s.scale = "none";
+  const r = el.getBoundingClientRect();
+  s.translate = guardado[0]; s.rotate = guardado[1]; s.scale = guardado[2];
+  // Escrever em el.style CRIA o atributo style. Sem desfazer isso, todo
+  // elemento que o usuário simplesmente clicasse ganhava um style="" vazio
+  // no HTML salvo — sujeira permanente no arquivo dele, por só ter olhado.
+  if (!tinhaStyle && !el.getAttribute("style")) el.removeAttribute("style");
+  return r;
+}
+
+function posicionarAlcas(){
+  const caixa = $("#alcas"), badge = $("#cracha");
+  if (!S.sel || S.modoPng || !S.sel.isConnected){
+    caixa.classList.remove("on"); badge.classList.remove("on"); return;
+  }
+  const el = S.sel;
+  const r = medirSemTransform(el);                    // coordenadas do slide (1080x1350)
+  const base = $("#escala").getBoundingClientRect();  // já com o scale do palco aplicado
+  const k = S.k || 1;
+  const [tx, ty] = lerTranslate(el);
+  const rot = parseFloat(el.style.rotate) || 0;
+  const esc = parseFloat(el.style.scale) || 1;
+
+  caixa.classList.add("on");
+  caixa.style.left   = (base.left + r.left * k) + "px";
+  caixa.style.top    = (base.top  + r.top  * k) + "px";
+  caixa.style.width  = Math.max(r.width  * k, 8) + "px";
+  caixa.style.height = Math.max(r.height * k, 8) + "px";
+  // mesma ordem (translate → rotate → scale) e mesma origem que o CSS aplica
+  // nas propriedades individuais, então o quadro cola no elemento de verdade
+  caixa.style.transformOrigin = "50% 50%";
+  caixa.style.transform = `translate(${tx*k}px, ${ty*k}px) rotate(${rot}deg) scale(${esc})`;
+
+  // O crachá fica FORA do quadro pra não girar junto e virar de cabeça pra baixo
+  const cr = caixa.getBoundingClientRect();
+  badge.style.left = (cr.left + cr.width/2) + "px";
+  badge.style.top  = (cr.bottom + 8) + "px";
+}
+
+function cracha(txt){ $("#cracha").textContent = txt; }
+
+// Converte um ponto da tela pras coordenadas do slide (1080x1350).
+function pontoNoSlide(clientX, clientY){
+  const base = $("#escala").getBoundingClientRect();
+  const k = S.k || 1;
+  return [(clientX - base.left) / k, (clientY - base.top) / k];
+}
+
+// Refaz, na mão, o que o clique teria feito se o quadro não estivesse no caminho:
+// descobre quem está embaixo, seleciona, e põe o caret onde o dedo encostou.
+function atravessarClique(e){
+  const doc = $("#palco").contentDocument;
+  if (!doc) return;
+  const [sx, sy] = pontoNoSlide(e.clientX, e.clientY);
+  const alvo = doc.elementFromPoint(sx, sy);
+  if (!alvo || ["HTML","BODY"].includes(alvo.tagName)){ posicionarAlcas(); montarInspetor(); return; }
+  selecionar(alvo, doc);
+  // sem isso o cursor cai no começo do texto e você digita no lugar errado
+  if (alvo.isContentEditable && doc.caretRangeFromPoint){
+    const faixa = doc.caretRangeFromPoint(sx, sy);
+    if (faixa){
+      const sel = doc.defaultView.getSelection();
+      sel.removeAllRanges(); sel.addRange(faixa);
+    }
+  }
+}
+
+// Alt tira o corpo do quadro do caminho, pra dar pra selecionar texto com o
+// mouse (arrastar dentro do elemento move, então essa é a válvula de escape).
+document.addEventListener("keydown", (e)=>{ if (e.key === "Alt") $("#alcas").classList.add("passar"); });
+document.addEventListener("keyup",   (e)=>{ if (e.key === "Alt") $("#alcas").classList.remove("passar"); });
+window.addEventListener("blur", ()=> $("#alcas").classList.remove("passar"));
+
+(function ligarAlcas(){
+  const caixa = $("#alcas");
+  let g = null;   // gesto em curso
+
+  caixa.addEventListener("pointerdown", (e)=>{
+    const gesto = e.target.dataset && e.target.dataset.gesto;
+    if (!gesto || !S.sel || S.modoPng) return;
+    e.preventDefault(); e.stopPropagation();
+    e.target.setPointerCapture(e.pointerId);
+
+    const el = S.sel;
+    garantirTransformavel(el);
+    const janela = el.ownerDocument.defaultView;
+    const computado = janela.getComputedStyle(el);
+    const r = el.getBoundingClientRect();
+    const base = $("#escala").getBoundingClientRect();
+    const k = S.k || 1;
+
+    g = {
+      gesto, el, alca: e.target, x0: e.clientX, y0: e.clientY,
+      // centro do elemento em coordenadas de TELA, pra girar e escalar
+      cx: base.left + (r.left + r.width/2) * k,
+      cy: base.top  + (r.top  + r.height/2) * k,
+      trans0: lerTranslate(el),
+      rot0: parseFloat(el.style.rotate) || 0,
+      escala0: parseFloat(el.style.scale) || 1,
+      fonte0: parseFloat(computado.fontSize) || 16,
+      // texto escala por font-size (reflui na coluna, é o que se quer num título);
+      // imagem e bloco escalam por scale, que é o que se quer numa foto ou selo
+      porFonte: el.tagName !== "IMG" && ehTexto(el),
+      k,
+    };
+    g.dist0 = Math.hypot(e.clientX - g.cx, e.clientY - g.cy) || 1;
+    g.ang0  = Math.atan2(e.clientY - g.cy, e.clientX - g.cx);
+    g.iniciado = false;   // só vira arraste de verdade depois do LIMIAR
+  });
+
+  // Quanto o ponteiro precisa andar pra virar arraste. Abaixo disso é clique —
+  // é o que deixa o corpo do elemento servir pras duas coisas: arrastar de
+  // qualquer ponto e, sem mover, entrar no texto pra digitar.
+  const LIMIAR = 4;
+
+  caixa.addEventListener("pointermove", (e)=>{
+    if (!g) return;
+    e.preventDefault();
+
+    if (!g.iniciado){
+      if (Math.hypot(e.clientX - g.x0, e.clientY - g.y0) < LIMIAR) return;
+      g.iniciado = true;
+      // enquanto arrasta, o elemento não pode estar editável: o mouse
+      // selecionaria texto em vez de mover e o caret roubaria o foco
+      if (g.el.getAttribute("contenteditable")){
+        g.eraEditavel = true; g.el.removeAttribute("contenteditable");
+      }
+      // UM marco por gesto, não um por pixel: senão Ctrl+Z desfaria o arraste
+      // quadro a quadro e levaria cem toques pra voltar ao ponto de partida.
+      marco("gesto"); S.emGesto = true;
+      $("#cracha").classList.add("on");
+      document.body.classList.add("arrastando-alca");
+    }
+
+    const dx = (e.clientX - g.x0) / g.k;
+    const dy = (e.clientY - g.y0) / g.k;
+
+    if (g.gesto === "mover"){
+      let [x, y] = [g.trans0[0] + dx, g.trans0[1] + dy];
+      if (e.shiftKey){                        // Shift trava no eixo dominante
+        if (Math.abs(dx) > Math.abs(dy)) y = g.trans0[1]; else x = g.trans0[0];
+      }
+      x = Math.round(x); y = Math.round(y);
+      aplicar(g.el, "translate", `${x}px ${y}px`);
+      cracha(`${x >= 0 ? "+" : ""}${x}, ${y >= 0 ? "+" : ""}${y}`);
+
+    } else if (g.gesto === "escalar"){
+      const fator = Math.hypot(e.clientX - g.cx, e.clientY - g.cy) / g.dist0;
+      if (g.porFonte){
+        const px = Math.max(6, Math.round(g.fonte0 * fator));
+        aplicar(g.el, "font-size", px + "px");
+        cracha(px + "px");
+      } else {
+        const s = Math.max(0.05, Math.round(g.escala0 * fator * 1000) / 1000);
+        aplicar(g.el, "scale", String(s));
+        cracha(Math.round(s * 100) + "%");
+      }
+
+    } else if (g.gesto === "girar"){
+      const delta = (Math.atan2(e.clientY - g.cy, e.clientX - g.cx) - g.ang0) * 180 / Math.PI;
+      let graus = g.rot0 + delta;
+      graus = e.shiftKey ? Math.round(graus / 15) * 15 : Math.round(graus);
+      aplicar(g.el, "rotate", graus + "deg");
+      cracha(graus + "°");
+    }
+    posicionarAlcas();
+  });
+
+  const encerrar = (e)=>{
+    if (!g) return;
+    const foiClique = !g.iniciado;
+    const solto = g;
+    if (g.eraEditavel && S.sel === g.el && ehTexto(g.el)) g.el.setAttribute("contenteditable","true");
+    g = null;
+    S.emGesto = false;
+    $("#cracha").classList.remove("on");
+    document.body.classList.remove("arrastando-alca");
+
+    // Não passou do limiar: o usuário clicou, não arrastou. O clique tem que
+    // atravessar o quadro e chegar no que está embaixo — senão cobrir o
+    // elemento inteiro custaria a edição de texto e a seleção de filhos.
+    if (foiClique && solto.gesto === "mover" && e && e.type === "pointerup"){
+      atravessarClique(e);
+      return;
+    }
+    posicionarAlcas();
+    montarInspetor();   // os campos passam a mostrar o valor que o gesto gravou
+  };
+  caixa.addEventListener("pointerup", encerrar);
+  caixa.addEventListener("pointercancel", encerrar);
+  caixa.addEventListener("lostpointercapture", encerrar);
+})();
+
+function selecionar(el, doc){
+  doc = doc || $("#palco").contentDocument;
+  if (["HTML","BODY"].includes(el.tagName)) return;
+  doc.querySelectorAll("[data-ed-sel]").forEach(n=>n.removeAttribute("data-ed-sel"));
+  doc.querySelectorAll("[contenteditable]").forEach(n=>n.removeAttribute("contenteditable"));
+  S.sel = el;
+  el.setAttribute("data-ed-sel","");
+  if (ehTexto(el)){ el.setAttribute("contenteditable","true"); el.focus(); }
+  mostrarAlvo(); montarInspetor(); posicionarAlcas();
+}
+
+function limparSelecao(doc){
+  doc = doc || $("#palco").contentDocument;
+  if (!doc) return;
+  doc.querySelectorAll("[data-ed-sel]").forEach(n=>n.removeAttribute("data-ed-sel"));
+  doc.querySelectorAll("[contenteditable]").forEach(n=>n.removeAttribute("contenteditable"));
+  S.sel = null; mostrarAlvo(); montarInspetor(); posicionarAlcas();
+}
+
+function mostrarAlvo(){
+  const box = $("#alvoEl");
+  if (!S.sel){ box.textContent = "clique num elemento do slide"; return; }
+  const el = S.sel;
+  const desc = `<span class="tag">${el.tagName.toLowerCase()}</span>` +
+    (el.className ? "."+String(el.className).trim().split(/\s+/).join(".") : "");
+  const pai = el.parentElement && !["HTML","BODY"].includes(el.parentElement.tagName)
+    ? ` <span class="pai" id="subirPai">↑ pai</span>` : "";
+  box.innerHTML = desc + pai;
+  const bt = $("#subirPai");
+  if (bt) bt.onclick = ()=> selecionar(el.parentElement);
+}
+
+/* ======================= histórico (Ctrl+Z) =======================
+   Undo por instantâneo do <body> do slide. Guardar o HTML inteiro é grosseiro
+   mas é o que sobrevive a tudo — mudança de estilo, texto digitado, elemento
+   apagado — sem eu ter que escrever um inverso pra cada tipo de operação.
+   Os ouvintes do editor moram no document, não nos elementos, então trocar o
+   innerHTML não desarma o editor. */
+const historia = [];
+let ultimoTexto = 0;
+
+function marco(motivo){
+  if (S.suspenderHistoria || S.modoPng || !S.atual) return;
+  const doc = $("#palco").contentDocument;
+  if (!doc || !doc.body) return;
+  // Digitação vira UM passo por pausa, não um por tecla: sem isso, desfazer
+  // uma palavra exigiria oito Ctrl+Z.
+  if (motivo === "texto"){
+    if (Date.now() - ultimoTexto < 700) return;
+    ultimoTexto = Date.now();
+  } else {
+    ultimoTexto = 0;
+  }
+  historia.push(doc.body.innerHTML);
+  if (historia.length > 80) historia.shift();
+  atualizarBotaoDesfazer();
+}
+
+function desfazer(){
+  if (S.modoPng) return recado("Sai do modo PNG pra editar.");
+  if (!historia.length) return recado("Nada pra desfazer neste slide.");
+  const doc = $("#palco").contentDocument;
+  if (!doc) return;
+  S.suspenderHistoria = true;
+  doc.body.innerHTML = historia.pop();
+  S.suspenderHistoria = false;
+  ultimoTexto = 0;
+  S.sel = null;
+  limparSelecao(doc);          // tira contenteditable/data-ed-sel que vieram no instantâneo
+  atualizarBotaoDesfazer();
+  sujar();                     // o desfazer também é uma mudança: precisa ser gravado
+}
+
+function atualizarBotaoDesfazer(){
+  const bt = $("#btDesfazer");
+  bt.disabled = !historia.length || S.modoPng;
+  bt.title = historia.length ? `Desfazer (${historia.length} passo(s)) — Ctrl+Z` : "Nada pra desfazer";
+}
+
+/* ======================= apagar elemento ======================= */
+function apagarElemento(){
+  const el = S.sel;
+  if (!el || S.modoPng) return;
+  if (["HTML","BODY"].includes(el.tagName) || el.classList.contains("slide"))
+    return recado("Esse é o slide inteiro — pra apagar o slide use a lixeira na miniatura.", "erro");
+  marco("apagar");
+  const pai = el.parentElement;
+  el.remove();
+  S.sel = null;
+  limparSelecao(el.ownerDocument);
+  sujar();
+  recado("Elemento apagado. Ctrl+Z traz de volta.", "bom");
+  // deixa o pai selecionado: quase sempre é onde o próximo ajuste acontece
+  if (pai && !["HTML","BODY"].includes(pai.tagName)) selecionar(pai, el.ownerDocument);
+}
+
+/* ======================= aplicar / desfazer ======================= */
+function aplicar(el, prop, valor){
+  if (!S.emGesto) marco("prop");   // durante gesto o marco já foi tirado no pointerdown
+  const marcadas = new Set((el.getAttribute("data-ed")||"").split(",").filter(Boolean));
+  if (valor==="" || valor==null){
+    el.style.removeProperty(prop);
+    marcadas.delete(prop);
+  } else {
+    el.style.setProperty(prop, valor);
+    marcadas.add(prop);
+  }
+  if (marcadas.size) el.setAttribute("data-ed", [...marcadas].join(","));
+  else el.removeAttribute("data-ed");
+  if (!el.getAttribute("style")) el.removeAttribute("style");
+  sujar();
+  posicionarAlcas();
+}
+
+function limparAjustes(){
+  const doc = $("#palco").contentDocument;
+  const tocados = doc.querySelectorAll("[data-ed]");
+  if (!tocados.length) return recado("Esse slide não tem ajuste do editor pra limpar.");
+  marco("limpar");
+  tocados.forEach(el=>{
+    (el.getAttribute("data-ed")||"").split(",").filter(Boolean).forEach(p=>el.style.removeProperty(p));
+    el.removeAttribute("data-ed");
+    if (!el.getAttribute("style")) el.removeAttribute("style");
+  });
+  sujar(); montarInspetor();
+  recado(`Limpei o ajuste visual de ${tocados.length} elemento(s). O texto editado fica.`, "bom");
+}
+
+function sujar(){ S.sujo = true; marcarEstado(); if ($("#autosave").checked) agendarSalvar(); }
+let timerSalvar;
+function agendarSalvar(){ clearTimeout(timerSalvar); timerSalvar = setTimeout(()=>salvar(), 1200); }
+
+/* ======================= salvar ======================= */
+function serializar(doc){
+  const clone = doc.documentElement.cloneNode(true);
+  clone.querySelectorAll("#__ed_style").forEach(n=>n.remove());
+  clone.querySelectorAll("[data-ed-sel]").forEach(n=>n.removeAttribute("data-ed-sel"));
+  clone.querySelectorAll("[data-ed-hov]").forEach(n=>n.removeAttribute("data-ed-hov"));
+  clone.querySelectorAll("[contenteditable]").forEach(n=>n.removeAttribute("contenteditable"));
+  clone.querySelectorAll("[spellcheck]").forEach(n=>n.removeAttribute("spellcheck"));
+  // style="" vazio não muda nada na renderização, mas suja o diff e o arquivo.
+  // Limpar aqui também recupera os slides que já pegaram a sujeira antes.
+  clone.querySelectorAll('[style=""]').forEach(n=>n.removeAttribute("style"));
+  return "<!doctype html>\n" + clone.outerHTML + "\n";
+}
+
+// Salvar NÃO avisa: o chip "salvo" lá em cima já diz tudo, e um recado por
+// gravação viraria um piscar constante no meio do trabalho. Só a falha fala.
+async function salvar(){
+  if (!S.sujo || S.modoPng || !S.atual) return;
+  clearTimeout(timerSalvar);
+  const doc = $("#palco").contentDocument;
+  if (!doc) return;
+  S.salvando = true; marcarEstado();
+  try {
+    await api("/api/salvar", {slide:S.atual, html:serializar(doc)});
+    S.sujo = false;
+    if (!S.comBackup.includes(S.atual)) S.comBackup.push(S.atual);
+  } catch(e){
+    recado("NÃO salvou: "+e.message, "erro");
+  } finally { S.salvando = false; marcarEstado(); }
+}
+
+/* ======================= inspetor ======================= */
+const CAMPOS = [
+  {grupo:"Texto", quando:(el)=>ehTexto(el) || el.tagName==="DIV", props:[
+    {css:"font-size",      rot:"Tamanho",   tipo:"px"},
+    {css:"line-height",    rot:"Entrelinha",tipo:"cru", dica:"1.1"},
+    {css:"letter-spacing", rot:"Kerning",   tipo:"cru", dica:"-.02em"},
+    {css:"font-weight",    rot:"Peso",      tipo:"opcoes", opcoes:["","400","500","700","800"]},
+    {css:"font-style",     rot:"Estilo",    tipo:"opcoes", opcoes:["","normal","italic"]},
+    {css:"text-transform", rot:"Caixa",     tipo:"opcoes", opcoes:["","none","uppercase","lowercase"]},
+    {css:"text-align",     rot:"Alinhar",   tipo:"opcoes", opcoes:["","left","center","right"]},
+    {css:"font-family",    rot:"Fonte",     tipo:"fontes"},
+  ]},
+  {grupo:"Caixa", props:[
+    {css:"padding",       rot:"Padding",  tipo:"cru", dica:"64px 88px"},
+    {css:"margin-top",    rot:"Topo",     tipo:"px"},
+    {css:"margin-bottom", rot:"Base",     tipo:"px"},
+    {css:"gap",           rot:"Gap",      tipo:"px"},
+    {css:"width",         rot:"Largura",  tipo:"cru", dica:"auto / 60%"},
+    {css:"max-width",     rot:"Máx.",     tipo:"cru", dica:"724px"},
+    {css:"border-radius", rot:"Raio",     tipo:"px"},
+    {css:"opacity",       rot:"Opacidade",tipo:"cru", dica:"0.34"},
+  ]},
+  {grupo:"Posição", props:[
+    {css:"translate", rot:"Deslocar", tipo:"cru", dica:"12px -4px"},
+    {css:"rotate",    rot:"Girar",    tipo:"cru", dica:"-10deg"},
+  ]},
+];
+
+function montarInspetor(){
+  const alvo = $("#campos");
+  alvo.innerHTML = "";
+  if (S.modoPng){
+    alvo.innerHTML = `<div class="grupo"><h3>Modo PNG — só leitura</h3>
+      <div class="aviso">Você está vendo o arquivo <b>${S.saidaPng}/</b> que saiu do render, não o HTML.
+      É aqui que dá pra conferir de verdade como a peça sai — o navegador na tela e o que gera o PNG
+      são o mesmo Chrome, mas só o PNG mostra o resultado final.<br><br>
+      <b>Voltar a editar</b> destrava os knobs.</div></div>` + blocoNunca();
+    $("#alvoEl").textContent = "modo PNG";
+    return;
+  }
+  if (!S.sel){
+    alvo.innerHTML = `<div class="grupo"><h3>Como mexer</h3>
+      <div class="aviso">
+        Clique num elemento pra selecionar. Se ele for texto, já dá pra digitar direto.<br><br>
+        Aparece um quadro azul com alças:<br>
+        <b>arraste de qualquer ponto</b> pra mover (Shift trava no eixo);<br>
+        <b>arraste o canto</b> pra aumentar ou diminuir;<br>
+        <b>arraste a bolinha de cima</b> pra girar (Shift de 15 em 15).<br>
+        Clicar sem arrastar entra no texto pra digitar.<br>
+        <b>Alt</b> segurado libera selecionar texto com o mouse.<br><br>
+        <b>Alt + setas</b> desloca de 1px (com Shift, de 10 em 10).<br>
+        <b>Ctrl+Z</b> desfaz — estilo, texto, gesto e elemento apagado.<br>
+        <b>Delete</b> apaga o elemento (digitando texto, use <b>Ctrl+Delete</b>).<br>
+        <b>↑ pai</b> sobe um nível quando você pegou o filho errado.<br>
+        <b>Esc</b> larga a seleção. <b>Ctrl+S</b> salva.<br><br>
+        O ajuste vira <code>style=""</code> no próprio slide-NN.html — nada de camada nova.
+      </div></div>` + blocoNunca();
+    return;
+  }
+  const el = S.sel;
+  const computado = el.ownerDocument.defaultView.getComputedStyle(el);
+
+  for (const g of CAMPOS){
+    if (g.quando && !g.quando(el)) continue;
+    const div = document.createElement("div");
+    div.className = "grupo";
+    div.innerHTML = `<h3>${g.grupo}</h3>`;
+    for (const p of g.props) div.appendChild(campo(el, p, computado));
+    alvo.appendChild(div);
+  }
+  alvo.appendChild(blocoCor(el));
+  if (el.tagName==="IMG" || /url\(/.test(computado.backgroundImage)) alvo.appendChild(blocoImagem(el));
+  alvo.appendChild(blocoExtra(el));
+  alvo.appendChild(blocoApagar(el));
+  alvo.insertAdjacentHTML("beforeend", blocoNunca());
+}
+
+function campo(el, p, computado){
+  const linha = document.createElement("div");
+  linha.className = "linha2";
+  const atual = el.style.getPropertyValue(p.css);
+  const lab = document.createElement("label");
+  lab.textContent = p.rot;
+  linha.appendChild(lab);
+
+  let entrada;
+  if (p.tipo==="opcoes"){
+    entrada = document.createElement("select");
+    entrada.innerHTML = p.opcoes.map(o=>`<option value="${o}">${o||"— herda —"}</option>`).join("");
+    entrada.value = atual;
+    entrada.onchange = ()=> aplicar(el, p.css, entrada.value);
+  } else if (p.tipo==="fontes"){
+    entrada = document.createElement("select");
+    const fontes = (S.tokens.fontes||[]);
+    entrada.innerHTML = `<option value="">— herda —</option>` +
+      fontes.map(f=>`<option value="'${f.familia}',sans-serif">${f.familia} · ${f.papel}</option>`).join("");
+    entrada.value = atual;
+    entrada.onchange = ()=> aplicar(el, p.css, entrada.value);
+  } else {
+    entrada = document.createElement("input");
+    entrada.type = "text";
+    entrada.value = atual;
+    // O placeholder mostra o valor que VIGORA agora (campo vazio = não mexi
+    // nessa propriedade). A dica só entra quando o computado não diz nada útil,
+    // como o "none" que translate e rotate devolvem quando estão intactos.
+    const comp = computado[camelo(p.css)] || "";
+    entrada.placeholder = p.tipo==="px" ? (parseFloat(comp)||0)+"px"
+                                        : (comp && comp!=="none" ? comp : (p.dica||""));
+    entrada.onchange = ()=>{
+      let v = entrada.value.trim();
+      if (v && p.tipo==="px" && /^-?[\d.]+$/.test(v)) v += "px";
+      aplicar(el, p.css, v);
+      entrada.value = el.style.getPropertyValue(p.css);
+    };
+    if (p.tipo==="px"){
+      entrada.onkeydown = (e)=>{
+        if (e.key!=="ArrowUp" && e.key!=="ArrowDown") return;
+        e.preventDefault();
+        const base = parseFloat(entrada.value) || parseFloat(computado[camelo(p.css)]) || 0;
+        const passo = (e.shiftKey?10:1) * (e.key==="ArrowUp"?1:-1);
+        entrada.value = (base+passo)+"px";
+        aplicar(el, p.css, entrada.value);
+      };
+    }
+  }
+  linha.appendChild(entrada);
+  return linha;
+}
+const camelo = (s)=> s.replace(/-([a-z])/g, (_,c)=>c.toUpperCase());
+
+function blocoCor(el){
+  const div = document.createElement("div");
+  div.className = "grupo";
+  div.innerHTML = `<h3>Cor — só a paleta da marca</h3>
+    <div class="destino">
+      <button data-d="color">Texto</button>
+      <button data-d="background-color">Fundo</button>
+      <button data-d="border-color">Borda</button>
+    </div>
+    <div class="swatches"></div>
+    <div class="aviso">A lista vem de <code>marca/design.json</code>. Digitar hex fora dela é possível pelo campo de CSS extra — mas aí você saiu da marca de propósito.</div>`;
+
+  div.querySelectorAll(".destino button").forEach(b=>{
+    b.classList.toggle("on", b.dataset.d===S.destinoCor);
+    b.onclick = ()=>{ S.destinoCor = b.dataset.d;
+      div.querySelectorAll(".destino button").forEach(x=>x.classList.toggle("on", x.dataset.d===S.destinoCor)); };
+  });
+
+  const caixa = div.querySelector(".swatches");
+  const limpar = document.createElement("button");
+  limpar.className = "sw nada"; limpar.title = "Tirar a cor (volta a herdar do CSS)";
+  limpar.onclick = ()=> aplicar(el, S.destinoCor, "");
+  caixa.appendChild(limpar);
+
+  (S.tokens.cores||[]).forEach(c=>{
+    const b = document.createElement("button");
+    b.className = "sw";
+    b.style.background = c.hex;
+    b.title = `${c.nome} — ${c.hex}${c.papel ? "\n"+c.papel : ""}`;
+    b.onclick = ()=> aplicar(el, S.destinoCor, c.hex);
+    caixa.appendChild(b);
+  });
+  return div;
+}
+
+function blocoImagem(el){
+  const div = document.createElement("div");
+  div.className = "grupo";
+  const ehImg = el.tagName==="IMG";
+  div.innerHTML = `<h3>Imagem</h3>
+    <div class="linha2"><label>Arquivo</label><select id="selImg"></select></div>
+    ${ehImg ? `<div class="linha2"><label>Encaixe</label>
+      <select id="fit"><option value="">— herda —</option><option>cover</option><option>contain</option><option>fill</option></select></div>` : ""}
+    <div class="aviso">Só lista o que já está na pasta da peça. Imagem nova: joga o arquivo lá e recarrega o painel.</div>`;
+
+  const sel = div.querySelector("#selImg");
+  const atual = ehImg ? el.getAttribute("src") : (el.style.backgroundImage.match(/url\(['"]?([^'")]+)/)||[])[1];
+  sel.innerHTML = `<option value="">— manter —</option>` +
+    S.imagens.map(i=>`<option value="${i}" ${i===atual?"selected":""}>${i}</option>`).join("");
+  sel.onchange = ()=>{
+    if (!sel.value) return;
+    if (ehImg){ el.setAttribute("src", sel.value); sujar(); }
+    else {
+      const antes = el.style.backgroundImage || el.ownerDocument.defaultView.getComputedStyle(el).backgroundImage;
+      aplicar(el, "background-image", antes.replace(/url\((['"]?)[^'")]+\1\)/, `url("${sel.value}")`));
+    }
+  };
+  const fit = div.querySelector("#fit");
+  if (fit){ fit.value = el.style.objectFit || ""; fit.onchange = ()=> aplicar(el, "object-fit", fit.value); }
+  return div;
+}
+
+function blocoExtra(el){
+  const div = document.createElement("div");
+  div.className = "grupo";
+  div.innerHTML = `<h3>CSS extra</h3>
+    <textarea id="extraCss" placeholder="mix-blend-mode: multiply;&#10;filter: grayscale(1);"></textarea>
+    <div class="par" style="margin-top:6px">
+      <button id="aplicaExtra">Aplicar</button>
+      <button id="veTudo">Ver style atual</button>
+    </div>
+    <div class="aviso">A saída de emergência: qualquer propriedade que os campos acima não cobrem (blend, filter, grão, máscara).</div>`;
+  div.querySelector("#aplicaExtra").onclick = ()=>{
+    const txt = div.querySelector("#extraCss").value;
+    let quantas = 0;
+    txt.split(";").forEach(par=>{
+      const i = par.indexOf(":");
+      if (i < 1) return;
+      aplicar(el, par.slice(0,i).trim(), par.slice(i+1).trim());
+      quantas++;
+    });
+    div.querySelector("#extraCss").value = "";
+    montarInspetor();
+    recado(quantas ? `Apliquei ${quantas} propriedade(s).` : "Nada pra aplicar — o formato é `propriedade: valor;`", quantas?"bom":"erro");
+  };
+  div.querySelector("#veTudo").onclick = ()=>
+    recado(`${el.tagName.toLowerCase()}${el.className?"."+String(el.className).trim().split(/\s+/).join("."):""}\n\n` +
+           (el.getAttribute("style") || "(sem style inline)") +
+           `\n\nmexido pelo editor: ${el.getAttribute("data-ed") || "(nada)"}`);
+  return div;
+}
+
+function blocoApagar(el){
+  const div = document.createElement("div");
+  div.className = "grupo";
+  const nome = el.tagName.toLowerCase() + (el.className ? "."+String(el.className).trim().split(/\s+/)[0] : "");
+  div.innerHTML = `<h3>Apagar</h3>
+    <button id="btApagarEl" class="perigo">Apagar &lt;${nome}&gt;</button>
+    <div class="aviso">Tira o elemento do slide. <b>Ctrl+Z</b> traz de volta.
+    No teclado: <b>Delete</b> quando não estiver digitando, ou <b>Ctrl+Delete</b> com o cursor dentro do texto.</div>`;
+  div.querySelector("#btApagarEl").onclick = apagarElemento;
+  return div;
+}
+
+function blocoNunca(){
+  const lista = (S.tokens && S.tokens.nunca) || [];
+  if (!lista.length) return "";
+  return `<div class="grupo"><h3>A lista <i>nunca</i> da marca</h3>
+    <ul id="nunca">${lista.map(n=>`<li>${n}</li>`).join("")}</ul></div>`;
+}
+
+/* ======================= botões de cima ======================= */
+$("#btDesfazer").onclick = desfazer;
+$("#btSalvar").onclick = ()=> salvar();
+$("#btLimpar").onclick = ()=> S.modoPng ? recado("Sai do modo PNG pra editar.") : limparAjustes();
+$("#btRestaurar").onclick = async ()=>{
+  if (!S.comBackup.includes(S.atual))
+    return recado("Esse slide nunca foi salvo pelo editor, então não tem backup — ele já é o original.");
+  if (!confirm(`Voltar o ${S.atual} pro estado de antes do editor? Perde texto e ajuste feitos aqui.`)) return;
+  try { await api("/api/restaurar", {slide:S.atual}); S.sujo=false; await irPara(S.atual);
+        recado("Restaurado do .editor-backup/", "bom"); }
+  catch(e){ recado("Falhou: "+e.message, "erro"); }
+};
+$("#btRender").onclick = async ()=>{
+  if (S.sujo) await salvar();
+  const bt = $("#btRender");
+  bt.disabled = true; bt.textContent = "Renderizando…";
+  try {
+    const d = await api("/api/renderizar", {formato:"instagram"});
+    S.pngs = d.pngs; S.saidaPng = d.saida;
+    $("#btVerPng").disabled = !d.pngs.length;
+    // No sucesso, uma linha: o log inteiro em cima do palco taparia o slide que
+    // acabou de sair. Na falha vale o log completo, que é onde está a pista.
+    if (d.ok) recado(`${d.pngs.length} slide(s) renderizado(s) em ${d.saida}/`, "bom");
+    else recado(d.log || "render terminou sem log", "erro");
+    if (d.ok && d.pngs.length) alternarPng(true);
+  } catch(e){ recado("Render falhou: "+e.message, "erro"); }
+  finally { bt.disabled = false; bt.textContent = "Renderizar"; }
+};
+$("#btVerPng").onclick = ()=> alternarPng(!S.modoPng);
+
+document.addEventListener("keydown", (e)=>{
+  if ((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==="s"){ e.preventDefault(); salvar(); }
+  if ((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==="z"){ e.preventDefault(); desfazer(); }
+  // Com o foco fora do iframe (você acabou de clicar num knob) o Delete também
+  // apaga o elemento — mas nunca enquanto o cursor está num campo do painel,
+  // senão apagar um "72px" digitado errado levaria o título junto.
+  if ((e.key==="Delete"||e.key==="Backspace") && S.sel && $("#modalColar").hidden
+      && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)){
+    e.preventDefault(); apagarElemento();
+  }
+});
+window.addEventListener("beforeunload", (e)=>{ if (S.sujo){ e.preventDefault(); e.returnValue=""; } });
+
+iniciar();
+</script>
+</body>
+</html>
