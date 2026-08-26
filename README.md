@@ -1,67 +1,101 @@
 # FlowOS
 
-O sistema operacional do seu negócio dentro da IA.
+> O sistema operacional do seu negócio dentro da IA.
 
-O FlowOS guarda o contexto do negócio, organiza arquivos, transforma processos repetidos em skills e melhora conforme o trabalho real acontece. Você continua decidindo. O sistema ajuda a lembrar, organizar e executar.
+Em alguns minutos, seu negócio passa a ter memória própria, regras de trabalho e skills prontas para transformar tarefas repetidas em processos executáveis. Você continua dirigindo. O sistema lembra, organiza, executa e melhora com o uso.
 
-Ele funciona com agentes que leem `AGENTS.md`, incluindo Codex e outros agentes compatíveis. No Claude Code, o arquivo `CLAUDE.md` aponta para a mesma fonte de instruções.
+O FlowOS funciona no VS Code com Claude Code, Codex e outros agentes que leem `AGENTS.md`.
 
-## Antes de instalar
+## Antes de começar
 
 Você precisa de:
 
-1. VS Code instalado;
-2. Git instalado;
-3. uma conta no GitHub;
-4. Claude Code, Codex ou outro agente compatível funcionando dentro do VS Code.
+1. VS Code;
+2. Git;
+3. uma conta no GitHub conectada ao computador;
+4. GitHub CLI autenticado;
+5. Claude Code, Codex ou outro agente compatível dentro do VS Code.
 
-O curso mostra cada instalação desde o zero.
+O curso ensina esse setup desde o zero.
 
-## Crie sua cópia
+## Ligando o sistema
 
-A rota recomendada é criar um repositório seu a partir deste template:
-
-1. Abra `https://github.com/fernandoduuttra-wq/FlowOS`.
-2. Clique em **Use this template**.
-3. Escolha **Create a new repository**.
-4. Dê ao repositório o nome do seu negócio e mantenha-o privado.
-5. Copie o link do repositório criado.
-
-Assim, seu contexto e os arquivos do negócio ficam no seu próprio repositório desde o primeiro dia.
-
-## Instale com o agente
-
-Abra Claude Code, Codex ou o agente escolhido e envie:
+Abra o agente em uma pasta vazia e cole:
 
 ```text
-Clone o repositório <COLE_AQUI_O_LINK_DO_SEU_REPOSITORIO>, abra a pasta clonada, leia o AGENTS.md e siga a skill em .claude/skills/instalar/SKILL.md para configurar meu FlowOS. Faça a entrevista uma pergunta por vez e conclua a instalação antes de iniciar qualquer outra tarefa.
+Instale meu FlowOS usando este repositório:
+https://github.com/fernandoduuttra-wq/FlowOS
+
+Primeiro clone o repositório. Não faça nenhuma alteração nem push no repositório de origem.
+
+Crie um novo repositório privado na minha conta do GitHub usando a cópia local, configure esse novo repositório como origin e mantenha fernandoduuttra-wq/FlowOS apenas como upstream.
+
+Confirme que origin aponta para a minha conta antes de continuar. Depois leia o AGENTS.md e siga .claude/skills/instalar/SKILL.md. Faça a entrevista uma pergunta por vez e conclua a instalação antes de iniciar qualquer outro trabalho.
 ```
 
 O agente vai:
 
-1. clonar e abrir a pasta;
-2. identificar seu perfil de operação;
-3. entrevistar você sobre negócio, escrita, foco e marca;
-4. preencher os arquivos de contexto;
-5. adaptar o `AGENTS.md`;
-6. criar somente as pastas que combinam com seu negócio;
-7. deixar as skills visíveis para os agentes compatíveis.
+1. baixar o FlowOS;
+2. criar um repositório privado na sua conta;
+3. separar sua cópia do repositório de origem;
+4. abrir o projeto no VS Code;
+5. entrevistar você sobre negócio, escrita, foco e marca;
+6. preencher seu contexto;
+7. adaptar o sistema ao seu perfil;
+8. criar somente as pastas que sua operação precisa.
 
-## Depois da entrevista
+Ao conferir os remotos, o resultado deve ser:
 
-O FlowOS passa a usar:
+```text
+origin    → seu-usuario/seu-flowos
+upstream  → fernandoduuttra-wq/FlowOS
+```
 
-- `_contexto/`: quem é o negócio, como escreve e o que está em foco;
-- `AGENTS.md`: regras de operação do workspace;
-- `.claude/skills/`: processos reutilizáveis;
-- `marca/`: identidade visual quando ela for definida;
-- `dados/`: arquivos de entrada;
-- `marketing/` e `saidas/`: trabalho produzido pelo sistema.
+O `origin` é sua cópia particular. É para lá que o FlowOS salva seu trabalho. O `upstream` é a instalação de origem e nunca recebe seu contexto ou seus commits.
 
-Quando uma rotina se repetir, peça para o FlowOS mapeá-la e transformá-la em skill. O sistema cresce com o que você realmente faz.
+## O sistema
 
-Para experimentar uma skill sem configurar nenhuma integração, envie uma referência de conteúdo e peça para usar a `Content Skill`. Ela faz de uma a três perguntas e constrói a adaptação com você dentro do chat.
+### Núcleo
+
+- `abrir` carrega o contexto no começo do trabalho;
+- `salvar` registra e envia seu trabalho ao GitHub;
+- `atualizar` mantém o contexto coerente com o workspace;
+- `novo-projeto` cria uma área dedicada quando um trabalho novo começa;
+- `mapear-rotinas` encontra processos repetidos que podem virar skills.
+
+### Conteúdo e posicionamento
+
+- `content-skill` modela uma referência com você dentro do chat;
+- `content-hacking` disseca referências em uma esteira avançada;
+- `carrossel` e `carrossel-tendencia` criam peças visuais;
+- `copy-lp` escreve páginas de venda;
+- `diagnostico` estrutura posicionamento, mecanismo e oferta;
+- `produto` transforma conhecimento em produto executável.
+
+### Marketing e operação
+
+O sistema também inclui skills para sites, SEO, anúncios, relatórios, análise de dados, publicação, avaliações, e-mail e outras rotinas. Algumas funcionam imediatamente. Outras pedem configuração somente quando forem usadas.
+
+## Como o FlowOS pensa
+
+`_contexto/` é a memória. Guarda quem é o negócio, como ele escreve, o que está em foco e como você prefere trabalhar.
+
+`AGENTS.md` contém as regras de operação. No Claude Code, `CLAUDE.md` aponta para a mesma fonte. Assim, agentes diferentes trabalham com as mesmas instruções.
+
+`.claude/skills/` reúne os processos reutilizáveis. Quando uma rotina se repete, ela pode virar uma skill nova e passar a fazer parte do sistema.
+
+`marca/` é a identidade visual. `marketing/`, `dados/`, `saidas/` e as pastas criadas na entrevista recebem o trabalho real.
+
+## A tese
+
+IA não é apenas uma ferramenta que seu negócio usa. Ela pode se tornar o ambiente onde contexto, decisões e processos continuam existindo depois que uma conversa termina.
+
+O FlowOS não substitui seu critério. Ele impede que cada trabalho recomece do zero e transforma o que funciona em capacidade reutilizável.
 
 ## Segurança
 
-Mantenha o repositório privado. Nunca salve senhas, tokens ou chaves de API em arquivos versionados. O `.gitignore` já protege os formatos mais comuns, mas a decisão final continua sendo sua.
+- nunca faça push no repositório de origem;
+- mantenha sua cópia privada;
+- confirme que o `origin` pertence à sua conta;
+- nunca versione senhas, tokens ou chaves de API;
+- não copie as skills para pastas duplicadas.

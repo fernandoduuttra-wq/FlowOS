@@ -9,12 +9,35 @@ Conduza a primeira configuração do sistema. O objetivo é terminar com o works
 
 Faça uma pergunta por vez. A conversa inteira deve levar de cinco a dez minutos. Não execute outro trabalho antes de concluir o setup.
 
-## 1. Pré-checagem
+## 1. Pré-checagem e cópia particular
 
 1. Confirme que a pasta atual contém `AGENTS.md`, `_contexto/` e `.claude/skills/`.
 2. Leia `AGENTS.md` e confira se os arquivos de `_contexto/` estão marcados como `não configurado`.
 3. Identifique o sistema operacional e o agente em uso. Não instale ferramentas que este setup não precisa.
 4. Se o contexto já estiver preenchido, pergunte se o usuário quer complementar ou reinstalar. Nunca sobrescreva contexto real sem confirmação.
+5. Antes de alterar qualquer arquivo, execute `git remote -v` e identifique o usuário autenticado com `gh api user --jq .login`.
+6. O `origin` precisa pertencer ao usuário autenticado. Se ainda apontar para o repositório de distribuição do FlowOS ou para outra conta:
+   - nunca faça push nesse remoto;
+   - confirme o nome desejado para a cópia particular, caso o usuário ainda não tenha informado;
+   - renomeie o remoto atual para `upstream`;
+   - crie um repositório privado na conta autenticada usando a cópia local;
+   - configure o novo repositório como `origin` e envie o estado inicial;
+   - confira novamente com `git remote -v`.
+7. A operação equivalente, adaptando o nome, é:
+
+```text
+git remote rename origin upstream
+gh repo create <nome-do-repositorio> --private --source=. --remote=origin --push
+```
+
+8. Só continue a entrevista depois de confirmar:
+
+```text
+origin    = repositório privado do usuário
+upstream  = repositório de distribuição do FlowOS
+```
+
+Se o GitHub CLI não estiver autenticado ou a criação falhar, preserve os arquivos locais, explique a correção necessária e não faça push em `upstream`.
 
 ## 2. Perfil de operação
 
@@ -101,10 +124,11 @@ Confirme que `.agents/skills` permanece no `.gitignore`. Não copie as skills pa
 
 ## 8. Git e encerramento
 
-Confira o remoto com `git remote -v`.
+Confira os remotos com `git remote -v`.
 
-- Se o repositório pertence ao próprio usuário, apenas explique que o setup pode ser salvo quando ele quiser.
-- Se ainda aponta para o repositório de origem do FlowOS, avise que ele precisa criar uma cópia própria antes de fazer push. Não altere remotos ou publique nada sem confirmação.
+- `origin` deve pertencer ao usuário e receber os salvamentos do FlowOS.
+- `upstream`, quando existir, é somente leitura. Nunca enviar contexto ou commits para ele.
+- Se `origin` ainda apontar para o repositório de distribuição, não conclua o setup até criar a cópia particular.
 
 Encerre mostrando:
 
@@ -119,4 +143,3 @@ Encerre mostrando:
 ```
 
 Nomeie a rotina citada na pergunta 8 como primeira candidata a virar skill. O sistema deve crescer a partir dessa rotina, não de exemplos genéricos.
-
