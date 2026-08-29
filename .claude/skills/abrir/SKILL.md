@@ -1,7 +1,7 @@
 ---
 name: abrir
 description: >
-  Abre uma sessão de trabalho carregando o contexto do negócio (empresa, escrita, preferências, estratégia e posicionamento)
+  Abre uma sessão de trabalho carregando o contexto do negócio (empresa, preferências e estratégia)
   e devolve um resumo curto pro usuário. Use quando o usuário disser "abrir",
   "começar o dia", "/abrir" ou no primeiro turno de uma sessão depois do /instalar.
 ---
@@ -14,13 +14,11 @@ Curto e direto. O objetivo é carregar contexto e devolver uma síntese de uma f
 
 1. Ler, em ordem:
    - `_contexto/empresa.md`
-   - `_contexto/escrita.md`
    - `_contexto/preferencias.md`
    - `_contexto/estrategia.md`
-   - `_contexto/posicionamento.md` (quando estiver configurado)
    - `marca/design.json` (somente para saber se a identidade visual já existe)
 
-2. Se empresa, escrita, preferências ou estratégia estiverem com `Status: não configurado`, responder:
+2. Se empresa, preferências ou estratégia estiverem com `Status: não configurado`, responder:
    > "O FlowOS ainda não foi configurado para este negócio. Vou iniciar a skill `instalar`."
    E parar.
 

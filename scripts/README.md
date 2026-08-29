@@ -1,23 +1,53 @@
-# Scripts do FlowOS
+# scripts/ — utilitários do FlowOS
 
-Esta pasta reúne utilitários usados por algumas skills para executar tarefas locais, como renderizar carrosséis, publicar conteúdo, consultar anúncios e fazer deploy de páginas.
+Scripts Node.js e Python que as skills chamam quando precisam fazer coisas fora do alcance da IA pura (gerar imagem, postar em rede social, renderizar HTML em PNG).
 
-## Regra de uso
+A pasta vem **vazia** — cada skill que precisa de script tem instrução de como criar (e geralmente é um único setup por integração que você vai ativar).
 
-- A skill explica quando um script é necessário.
-- Dependências e credenciais são configuradas somente quando a função for usada.
-- Tokens e chaves ficam em arquivos locais ignorados pelo Git.
-- Nunca publique credenciais no repositório.
+## Scripts comuns
 
-## Utilitários incluídos
+Conforme você for ativando skills, isso aqui vai sendo populado. Lista do que cada skill espera encontrar:
 
-- `render-carrossel.ps1` e `render_slides.py`: renderização de slides HTML.
-- `editor-carrossel.py`: editor local de carrosséis.
-- `instagram-carrossel.py`: coleta de conteúdo público do Instagram.
-- `postar-instagram.py`: publicação via API da Meta, após configuração.
-- `meta-ads.py`, `meta-campanha.py` e `meta-leadform.py`: rotinas opcionais da Meta.
-- `deploy-netlify.py` e `deploy-vercel.py`: deploy opcional de páginas e arquivos.
-- `coleta-youtube.ps1`: coleta de material público do YouTube.
-- `prospect.py`: apoio a rotinas de prospecção.
+| Skill | Script esperado | O que faz |
+|---|---|---|
+| `/carrossel` (com foto IA) | `gerar-imagem.js` | Gera foto realista via API de geração de imagens |
+| `/carrossel` (render PNG) | `render.js` (gerado por carrossel, fica na pasta do conteúdo) | Playwright tira screenshot 1080x1350 de cada slide |
+| `/aprovar-post` | `postar-instagram.js` | Publica carrossel no Instagram via Meta Graph API |
+| `/aprovar-post` | `postar-facebook.js` | Publica carrossel no Facebook via Meta Graph API |
+| `/anuncio-google` | (nenhum — gera CSV direto) | — |
+| `/relatorio-ads` | (lê CSV exportado das plataformas) | — |
 
-O FlowOS não instala todas as integrações de uma vez. Ele prepara cada stack sob demanda, de acordo com o trabalho real do usuário.
+## Pré-requisitos comuns
+
+A maioria dos scripts depende de:
+
+**Node.js 20+** instalado na máquina
+
+**.env** na raiz do projeto com as chaves de API:
+
+```bash
+OPENAI_API_KEY=sk-...               # pra gerar-imagem.js
+META_PAGE_ACCESS_TOKEN=...          # pra postar-instagram.js + postar-facebook.js
+META_PAGE_ID=...
+META_IG_USER_ID=...
+SITE_URL=https://seudominio.com.br
+```
+
+**Playwright** (pra renderizar HTML em PNG):
+
+```bash
+npm install playwright
+npx playwright install chromium
+```
+
+## Como o FlowOS lida com isso
+
+Quando você roda uma skill que precisa de script ausente, o agente vai:
+
+1. Detectar que falta o script
+2. Perguntar se você quer configurar agora
+3. Guiar você no setup das chaves de API
+4. Criar o script já configurado
+5. Rodar a skill
+
+Você não precisa decorar nada. Roda a skill, segue o fluxo.

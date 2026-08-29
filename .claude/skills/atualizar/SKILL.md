@@ -27,7 +27,7 @@ Ler os arquivos de contexto e identificar:
 
 - **Em `_contexto/empresa.md`:** lista de clientes / serviços / ferramentas — bate com a realidade do workspace?
 - **Em `_contexto/estrategia.md`:** o foco atual ainda faz sentido (datas, prioridades)?
-- **Em `_contexto/escrita.md` e `_contexto/preferencias.md`:** correções duráveis do usuário ainda não foram registradas?
+- **Em `_contexto/preferencias.md`:** correções duráveis de escrita, formato de entrega ou modo de trabalho ainda não foram registradas?
 - **Em `AGENTS.md`:** as regras de organização e a estrutura de pastas listada batem com o que existe?
 - **Em `marca/design.json`:** os tokens continuam coerentes com os ativos aprovados? Se o arquivo não existir, não inventar identidade.
 

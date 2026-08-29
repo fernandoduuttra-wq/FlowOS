@@ -2,5 +2,5 @@
 
 **Status:** não configurado
 
-Este arquivo será preenchido pela skill `instalar` com preferências sobre formato de entrega, grau de detalhe, aprovações e maneira de trabalhar.
+Este arquivo será preenchido pela skill `instalar` com tom de voz, padrões de escrita, o que evitar, formato de entrega, grau de detalhe, aprovações e maneira de trabalhar.
 

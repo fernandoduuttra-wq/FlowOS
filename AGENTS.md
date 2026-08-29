@@ -18,10 +18,8 @@ Se os arquivos em `_contexto/` ainda estiverem marcados como não configurados, 
 Depois da instalação, leia no início de cada trabalho:
 
 1. `_contexto/empresa.md`;
-2. `_contexto/escrita.md`;
-3. `_contexto/preferencias.md`;
-4. `_contexto/estrategia.md`;
-5. `_contexto/posicionamento.md`, quando estiver preenchido.
+2. `_contexto/preferencias.md`;
+3. `_contexto/estrategia.md`.
 
 Para tarefas visuais, use `marca/design.json` como fonte de cores, fontes, formas e espaçamento. Se o arquivo ainda não existir, ajude o usuário a definir a identidade antes de produzir a peça final.
 

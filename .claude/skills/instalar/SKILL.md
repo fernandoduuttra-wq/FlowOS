@@ -5,7 +5,7 @@ description: Instala o FlowOS no negócio do usuário. Entrevista, preenche o co
 
 # Instalar o FlowOS
 
-Conduza a primeira configuração do sistema. O objetivo é terminar com o workspace reconhecendo o negócio, a escrita, a prioridade atual e o perfil de operação do usuário.
+Conduza a primeira configuração do sistema. O objetivo é terminar com o workspace reconhecendo o negócio, as preferências, a prioridade atual e o perfil de operação do usuário.
 
 Faça uma pergunta por vez. A conversa inteira deve levar de cinco a dez minutos. Não execute outro trabalho antes de concluir o setup.
 
@@ -73,10 +73,8 @@ Se uma resposta já contiver a seguinte, não repita a pergunta. Não invente o 
 Atualize:
 
 - `_contexto/empresa.md`: nome, atividade, público, entregas e equipe;
-- `_contexto/escrita.md`: padrões extraídos do texto real, vocabulário e o que evitar;
-- `_contexto/preferencias.md`: formato de entrega, aprovações e modo de trabalho;
-- `_contexto/estrategia.md`: gargalo, prioridade atual e rotina candidata a skill;
-- `_contexto/posicionamento.md`: somente um resumo factual do público, problema e oferta, quando houver informação suficiente. Se faltar, mantenha a pendência e indique a skill `diagnostico`.
+- `_contexto/preferencias.md`: padrões extraídos do texto real, vocabulário, o que evitar, formato de entrega, aprovações e modo de trabalho;
+- `_contexto/estrategia.md`: gargalo, prioridade atual e rotina candidata a skill.
 
 Remova o marcador `não configurado` dos arquivos efetivamente preenchidos.
 
@@ -135,7 +133,7 @@ Encerre mostrando:
 ```text
 ✓ Perfil aplicado
 ✓ Contexto do negócio
-✓ Escrita e preferências
+✓ Preferências de escrita e trabalho
 ✓ Prioridade atual
 ✓ AGENTS.md adaptado
 ✓ Estrutura criada para este perfil
