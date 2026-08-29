@@ -63,14 +63,10 @@ O `origin` é sua cópia particular. É para lá que o FlowOS salva seu trabalho
 - `novo-projeto` cria uma área dedicada quando um trabalho novo começa;
 - `mapear-rotinas` encontra processos repetidos que podem virar skills.
 
-### Conteúdo e posicionamento
+### Conteúdo e comunicação
 
-- `content-skill` modela uma referência com você dentro do chat;
-- `content-hacking` disseca referências em uma esteira avançada;
 - `carrossel` e `carrossel-tendencia` criam peças visuais;
-- `copy-lp` escreve páginas de venda;
-- `diagnostico` estrutura posicionamento, mecanismo e oferta;
-- `produto` transforma conhecimento em produto executável.
+- `copy-lp` escreve páginas de venda.
 
 ### Marketing e operação
 

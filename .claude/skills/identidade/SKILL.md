@@ -32,7 +32,9 @@ Esta skill entrega os níveis 1 e 2. O nível 3 é das outras skills.
 ## Dependências
 
 - `_contexto/empresa.md`, `_contexto/preferencias.md` — quem é a marca, como fala
-- `_contexto/posicionamento.md` — Tese/Mecanismo/Oferta (se existir; se não, rodar `/diagnostico` antes — **a identidade visual serve ao posicionamento, não o contrário**)
+- `_contexto/posicionamento.md` — Tese/Mecanismo/Oferta, quando existir. Se não existir, extrair no
+  Passo 1 o mínimo necessário sobre público, oferta, diferença e percepção desejada antes de decidir
+  o visual — **a identidade visual serve ao negócio, não o contrário**.
 - Saídas: `marca/design.json` (máquina), `marca/brandbook.md` (humano), `marca/logo*.svg`
 
 ---
@@ -222,6 +224,7 @@ usuário pra lá em vez de remontar.
 - Nunca fazer uma busca de referência só — são cinco, uma por componente.
 - Nunca inventar referência visual. Se não tem referência, pedir ao usuário.
 - O `design.json` é a fonte da verdade. O `design-guide.md`/brandbook explica; o JSON manda.
-- A identidade serve ao posicionamento. Se não existe Tese/Mecanismo/Oferta, rodar `/diagnostico` antes.
+- A identidade serve ao negócio. Se não houver contexto estratégico suficiente, coletar o mínimo no
+  Passo 1 antes de tomar qualquer decisão visual.
 - Logo sempre em SVG, sempre em versão clara e escura.
 - Toda vez que o `design.json` mudar, avisar quais skills consomem ele (hoje: `/carrossel`, propostas de cliente, site).

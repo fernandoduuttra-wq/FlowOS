@@ -27,7 +27,6 @@ gente ampla chega no último slide já sabendo por que deveria te contratar.
 |---|---|
 | **esta** | constrói a **narrativa** de tendência do zero, com pesquisa, e entrega a peça |
 | `/carrossel` | carrossel genérico da marca (educativo, lista, dica) — outro formato |
-| `/content-hacking` | disseca conteúdo de terceiro e extrai esqueleto — entrada, não saída |
 | `/post-twitter` | acabamento em print de tweet — pode receber o Template 4 desta skill |
 
 Se o usuário pediu "um carrossel" sem mais contexto, é `/carrossel`. Esta aqui é quando existe um

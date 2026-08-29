@@ -17,8 +17,7 @@ for montar o HTML (`/frontend-design` ou o handoff visual do Passo 5). Não é g
 bonita solta: extrai o que já existe de real sobre produto, público e oferta, e só depois
 escreve.
 
-Serve pra dois casos, igual ao `/diagnostico`: o **próprio negócio** de quem usa o sistema, ou
-um **cliente**.
+Serve pra dois casos: o **próprio negócio** de quem usa o sistema, ou um **cliente**.
 
 ## Dependências
 
@@ -26,9 +25,9 @@ um **cliente**.
   `_contexto/preferencias.md` e, se existir, `_contexto/posicionamento.md` (Tese/Mecanismo/Oferta).
   Se for cliente, o `CLAUDE.md` da pasta dele em `clientes/<nome>/` e o diagnóstico que já tiver
   sido feito pra ele.
-- **Se não existir posicionamento** (nem `_contexto/posicionamento.md` nem diagnóstico do
-  cliente): rodar `/diagnostico` antes. Copy sem Tese/Mecanismo/Oferta definidos vira frase bonita
-  sem direção, é a mesma trava que existe pro `/identidade`.
+- **Se não existir posicionamento** (nem `_contexto/posicionamento.md` nem material equivalente do
+  cliente): fazer dentro desta skill um intake curto sobre oferta, público, problema, transformação
+  e prova antes de escrever. Não inventar tese, mecanismo ou promessa para preencher lacuna.
 - **Visual (opcional, Passo 5):** `marca/design.json` se for o próprio negócio, ou o
   equivalente do cliente.
 
@@ -38,7 +37,8 @@ um **cliente**.
 autoavaliação crítica no final.
 
 **NÃO faz:** HTML/CSS (isso é `/frontend-design` ou o handoff visual descrito no Passo 5), peça
-de conteúdo social (`/carrossel`, `/publicar-tema`), nem posicionamento do zero (`/diagnostico`).
+de conteúdo social (`/carrossel`, `/publicar-tema`), nem uma consultoria ampla de posicionamento.
+Coleta apenas o contexto mínimo necessário para escrever a página.
 
 ## Passo 0 — De quem é a copy, e onde salvar
 
@@ -157,8 +157,10 @@ copy), não uma alteração no `design.json`, que continua sendo só a fonte dos
 
 ## Quando NÃO usar
 
-- Posicionamento (Tese/Mecanismo/Oferta) ainda não existe → `/diagnostico` primeiro.
+- A oferta ainda não está clara e o usuário não quer concluir o intake mínimo → pausar; não escrever
+  uma página baseada em suposição.
 - Peça de conteúdo social avulsa (post, carrossel, e-mail solto) → `/carrossel` ou
   `/publicar-tema`.
-- Reforma de site de prospect como isca de prospecção (sem intake de oferta paga) → `/aperitivo`.
+- Reforma de site de prospect sem uma oferta definida → tratar como projeto de prospecção separado;
+  esta skill só entra quando houver uma oferta real para apresentar.
 - Construção de HTML/CSS de fato → `/frontend-design`, usando esta copy como insumo.

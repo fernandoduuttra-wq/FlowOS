@@ -15,8 +15,8 @@ description: >
 # /site — Sites premium por engenharia reversa
 
 Skill de construção de site com o teto alto: animação, profundidade, efeito refinado. O que HTML solto
-com CSS inline nunca alcança. O método é o mesmo que o `/content-hacking` faz com conteúdo, aplicado a
-código de site: **dissecar uma referência excelente → extrair a técnica → reconstruir na marca**.
+com CSS inline nunca alcança. O método é: **dissecar uma referência excelente → extrair a técnica →
+reconstruir na marca**.
 
 ## Princípio
 

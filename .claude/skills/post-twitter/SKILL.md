@@ -3,7 +3,7 @@ name: post-twitter
 description: >
   Produz a peça visual no formato print de tweet (Twitter/X) — carrossel 1080x1350 pro Instagram
   ou card avulso — em versão clara ou escura, com header de perfil (avatar, nome, selo, @).
-  O texto vem pronto do /content-hacking, de um registro do banco no Notion ou de um modelo já
+  O texto vem de uma referência analisada, de um registro do banco no Notion ou de um modelo já
   validado — e, se o usuário preferir, a própria skill escreve a partir de um tema. Use quando o
   usuário disser "post de twitter", "post no formato tweet", "carrossel estilo print de tweet",
   "monta em print de tweet", ou /post-twitter.
@@ -30,7 +30,7 @@ outra:
 ```
 De onde vem o texto?
 
-A) Content hacking de uma referência (manda o link ou o print)
+A) Uma referência para analisar (manda o link ou o print)
 
 B) Um registro que já existe no banco do Notion (eu escolho o que combina com o tema)
 
@@ -41,8 +41,9 @@ D) Eu escrevo, a partir de um tema ou de um texto seu pra fatiar
 Qual?
 ```
 
-- **A — `/content-hacking`:** o usuário colou um link/print de referência. Aquela skill disseca e
-  cadastra a ideia no Notion. O texto sai de lá.
+- **A — referência:** o usuário colou um link/print. Esta própria skill identifica a estrutura,
+  adapta o texto ao contexto real do usuário e apresenta o rascunho para aprovação. Se houver um
+  banco de conteúdo configurado, pode registrar a versão aprovada nele.
 - **B — banco do Notion:** uma Ideia de Conteúdo, ou uma referência do Banco cuja estrutura combine
   com o tema. Escolher a que **ressoa com o assunto pedido**, não a mais recente, e mostrar qual
   escolheu antes de seguir.
@@ -50,9 +51,9 @@ Qual?
 - **D — a skill escreve:** ver "Quando a skill escreve o texto". É a rota mais rápida e a mais fácil
   de sair genérica — por isso ela tem regra própria.
 
-**Nas rotas A, B e C existe uma parada obrigatória: o usuário edita no Notion.** Só depois disso a
-peça é produzida. Não produzir em cima de rascunho não revisado, e não "melhorar" o texto na hora de
-montar. Na rota D a parada vira o checkpoint de texto (ver abaixo).
+**Toda rota tem uma parada obrigatória para aprovação do texto.** Se a origem estiver no Notion, o
+usuário edita lá. Nos demais casos, o checkpoint acontece no chat. Não produzir em cima de rascunho
+não revisado, e não "melhorar" o texto na hora de montar.
 
 **Nas rotas A, B e C o texto entra literal.** Copiar do Notion palavra por palavra, incluindo as
 linhas que parecerem sobrando. Se algo precisar mudar, muda no Notion primeiro e puxa de novo —
@@ -231,15 +232,15 @@ entregar um avatar com a cabeça raspada pela borda.
 
 ## Workflow
 
-**Passo 1 — Origem do texto.** Perguntar (A/B/C/D) se não estiver claro. A → rodar
-`/content-hacking` primeiro. B → escolher o registro que ressoa com o tema e mostrar qual escolheu.
-D → escrever seguindo "Quando a skill escreve o texto".
+**Passo 1 — Origem do texto.** Perguntar (A/B/C/D) se não estiver claro. A → analisar a referência e
+adaptar o texto. B → escolher o registro que ressoa com o tema e mostrar qual escolheu. D → escrever
+seguindo "Quando a skill escreve o texto".
 
-**Passo 2 — Aprovação do texto.** Rotas A/B/C: parada no Notion, o usuário revisa e edita lá. Rota
-D: mostrar o texto slide a slide aqui. Só seguir depois do "pode produzir".
+**Passo 2 — Aprovação do texto.** Se a fonte estiver no Notion, o usuário revisa e edita lá. Nos
+demais casos, mostrar o texto slide a slide no chat. Só seguir depois do "pode produzir".
 
-**Passo 3 — Fatiar em slides.** Nas rotas A/B/C, puxar o texto **literal** do Notion. Um tweet por
-slide; quebra de parágrafo do roteiro vira parágrafo no slide.
+**Passo 3 — Fatiar em slides.** Usar o texto **literalmente aprovado**, venha ele do Notion ou do
+chat. Um tweet por slide; quebra de parágrafo do roteiro vira parágrafo no slide.
 
 **Passo 4 — Versão e identidade.** Clara ou escura. Nome, @ e foto vêm do `CLAUDE.md` da raiz.
 
@@ -265,7 +266,7 @@ inventar legenda nova aqui.
 ## Estruturas validadas
 
 Quando uma estrutura de post desta rede provar que funciona (métrica real, não achismo), registrar
-como modelo no banco do Notion e reusar direto — sem passar por content-hacking de novo. Com o
+como modelo no banco do Notion e reusar direto — sem dissecar a referência de novo. Com o
 tempo, essa vira a terceira origem de texto e a mais barata.
 
 Registrar sempre **por que** funcionou, não só o esqueleto. Estrutura sem a psicologia por trás vira
