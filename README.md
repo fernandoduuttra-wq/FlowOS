@@ -11,47 +11,30 @@ O FlowOS funciona no VS Code com Claude Code, Codex e outros agentes que leem `A
 Você precisa de:
 
 1. VS Code;
-2. uma conta no GitHub;
-3. Claude Code, Codex ou outro agente compatível dentro do VS Code.
-
-O agente verifica e instala Git e GitHub CLI quando forem necessários. Se o GitHub pedir autenticação no navegador, ele orienta você durante essa etapa.
+2. Claude Code, Codex ou outro agente compatível dentro do VS Code.
 
 ## Ligando o sistema
 
 Abra o agente em uma pasta vazia e cole:
 
 ```text
-Instale meu FlowOS usando este repositório:
-https://github.com/fernandoduuttra-wq/FlowOS
-
-Antes de clonar, verifique se Git e GitHub CLI estão instalados. Se algum estiver ausente, instale a versão estável adequada ao meu sistema operacional. Depois confirme se o GitHub CLI está autenticado na minha conta. Se a autenticação exigir o navegador, me conduza por essa etapa e aguarde eu concluir.
-
-Primeiro clone o repositório. Não faça nenhuma alteração nem push no repositório de origem.
-
-Crie um novo repositório privado na minha conta do GitHub usando a cópia local, configure esse novo repositório como origin e mantenha fernandoduuttra-wq/FlowOS apenas como upstream.
-
-Confirme que origin aponta para a minha conta antes de continuar. Depois leia o AGENTS.md e siga .claude/skills/instalar/SKILL.md. Faça a entrevista uma pergunta por vez e conclua a instalação antes de iniciar qualquer outro trabalho.
+Clona o https://github.com/fernandoduuttra-wq/FlowOS.git na pasta atual,
+entra nela e roda o /instalar.
 ```
 
 O agente vai:
 
 1. baixar o FlowOS;
-2. criar um repositório privado na sua conta;
-3. separar sua cópia do repositório de origem;
-4. abrir o projeto no VS Code;
-5. entrevistar você sobre negócio, escrita, foco e marca;
-6. preencher seu contexto;
-7. adaptar o sistema ao seu perfil;
-8. criar somente as pastas que sua operação precisa.
+2. abrir o projeto;
+3. entrevistar você sobre negócio, escrita, foco e marca;
+4. preencher seu contexto;
+5. adaptar o sistema ao seu perfil;
+6. criar somente as pastas que sua operação precisa.
 
-Ao conferir os remotos, o resultado deve ser:
-
-```text
-origin    → seu-usuario/seu-flowos
-upstream  → fernandoduuttra-wq/FlowOS
-```
-
-O `origin` é sua cópia particular. É para lá que o FlowOS salva seu trabalho. O `upstream` é a instalação de origem e nunca recebe seu contexto ou seus commits.
+A instalação não pede conta no GitHub, GitHub CLI ou autenticação. O `/instalar` remove os remotos
+herdados do clone, então sua cópia fica independente do repositório original. Se houver uma
+atualização no futuro, peça ao próprio sistema para consultar o repositório público e decidir com
+você o que vale incorporar.
 
 ## O sistema
 
@@ -90,8 +73,5 @@ O FlowOS não substitui seu critério. Ele impede que cada trabalho recomece do 
 
 ## Segurança
 
-- nunca faça push no repositório de origem;
-- mantenha sua cópia privada;
-- confirme que o `origin` pertence à sua conta;
 - nunca versione senhas, tokens ou chaves de API;
 - não copie as skills para pastas duplicadas.
